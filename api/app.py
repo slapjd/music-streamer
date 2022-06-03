@@ -14,7 +14,7 @@ from flask_jwt_extended import JWTManager
 import nacl.pwhash
 import nacl.exceptions
 
-from ownerresource import *
+from resourcetypes import *
 
 app = Flask(__name__)
 #TODO: environment variables
@@ -42,6 +42,7 @@ class MediaEntry(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, nullable=True)
     owner_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    location = db.column(db.String(256), nullable=False)
 
 #TODO: maybe don't need this
 db.create_all()
