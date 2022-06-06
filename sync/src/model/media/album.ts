@@ -10,6 +10,6 @@ export class Album {
     @PrimaryGeneratedColumn()
     id!: number
 
-    @OneToMany(() => Track, (track) => track.albums)
+    @OneToMany(type => Track, (track) => track.albums)
     tracks!: Track[]
 }
