@@ -7,15 +7,15 @@ const httpServer: http.Server = http.createServer(app); //Explicitly done for so
 const io: socketio.Server = new socketio.Server(httpServer)
 const port: number = 3000;
 
-app.use(express.static('wwwroot'));
+//app.use(express.static('wwwroot'));
 
 io.on("connection", (_) => {
     console.log("CONNECTION_ATTEMPT")
 });
 
-app.get('/js', (_req, _res) => {
-    _res.send("TypeScript With Expresss");
-});
+// app.get('/js', (_req, _res) => {
+//     _res.send("TypeScript With Expresss");
+// });
  
 // Server setup
 httpServer.listen(port, () => {
