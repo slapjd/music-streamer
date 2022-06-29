@@ -2,12 +2,15 @@ import {
     Entity,
     Column,
     PrimaryGeneratedColumn,
-    ManyToMany,
+    OneToOne,
     ManyToOne,
+    ManyToMany,
+    JoinColumn,
     JoinTable,
 } from "typeorm"
 import { Artist } from "./artist"
 import { Album } from "./album"
+import { User } from "../user"
 
 @Entity()
 export class Track {
@@ -26,11 +29,15 @@ export class Track {
     @JoinTable()
     artists!: Artist[]
 
-    @ManyToOne(() => Album, (album) => album.tracks)
+    @ManyToOne(type => Album, (album) => album.tracks)
     @JoinTable()
     albums!: Album[]
 
+    @ManyToOne(type => User, (user) => user.ownedTracks)
     @Column()
+    owner!: User
+
+    @Column("text")
     filename!: string
 }
 
