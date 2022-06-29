@@ -1,19 +1,24 @@
-// Import the express in typescript file
 import express from 'express';
- 
-// Initialize the express engine
+import http from 'http';
+import socketio from 'socket.io';
+
 const app: express.Application = express();
- 
-// Take a port 3000 for running server.
+const httpServer: http.Server = http.createServer(app); //Explicitly done for socket.io
+const io: socketio.Server = new socketio.Server(httpServer)
 const port: number = 3000;
- 
-// Handling '/' Request
-app.get('/', (_req, _res) => {
+
+app.use(express.static('wwwroot'));
+
+io.on("connection", (_) => {
+    console.log("CONNECTION_ATTEMPT")
+});
+
+app.get('/js', (_req, _res) => {
     _res.send("TypeScript With Expresss");
 });
  
 // Server setup
-app.listen(port, () => {
+httpServer.listen(port, () => {
     console.log(`TypeScript with Express
          http://localhost:${port}/`);
 });

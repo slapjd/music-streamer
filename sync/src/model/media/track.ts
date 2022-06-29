@@ -14,8 +14,13 @@ export class Track {
     @PrimaryGeneratedColumn()
     id!: number
 
-    @Column("text")
+    @Column()
     title!: string
+
+    @Column({
+        nullable: true
+    })
+    displayArtist: string | undefined
 
     @ManyToMany(() => Artist, (artist) => artist.tracks)
     @JoinTable()
@@ -25,7 +30,7 @@ export class Track {
     @JoinTable()
     albums!: Album[]
 
-    @Column("text")
+    @Column()
     filename!: string
 }
 
