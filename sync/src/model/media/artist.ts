@@ -14,17 +14,20 @@ export class Artist {
     @Column("text")
     name!: string
 
-    @ManyToMany(type => Track, (track) => track.artists)
+    @ManyToMany(_type => Track, (track) => track.artists)
     tracks!: Track[]
 
     //Fallback in case there's no display name for the artist on the track
-    static artistArrayToDisplayString(artists: Artist[]) {
-        if (artists.length == 1) return artists[0]
+    static artistArrayToDisplayString(artists: Artist[]) : string {
+        if (artists.length < 1) throw new Error("No artists exist");
+        if (artists.length == 1) return artists[0]!.name
         
-        let out = artists[0].name
-        for (let i = 1; i < artists.length - 1; i++) {
-              out += ", " + artists[i].name
-        }
+        //Guaranteed more than 1 artist 
+        let out: string = ""
+        artists.forEach((artist, i) => {
+            if (i > 0) out += ", "
+            out += artist.name
+        });
         out += " & " + artists[artists.length - 1]
         return out
     }
