@@ -38,7 +38,7 @@ export class Track {
         this._displayArtist = value
     }
 
-    @ManyToMany(() => Artist, (artist) => artist.tracks)
+    @ManyToMany(_type => Artist, (artist) => artist.tracks)
     @JoinTable()
     private _artists!: Artist[]
     public get artists(): Artist[] {
@@ -49,7 +49,6 @@ export class Track {
     }
 
     @ManyToOne(_type => Album, (album) => album.tracks)
-    @JoinTable()
     private _albums!: Album[]
     public get albums(): Album[] {
         return this._albums
@@ -59,7 +58,6 @@ export class Track {
     }
 
     @ManyToOne(_type => User, (user) => user.ownedTracks)
-    @Column()
     private _owner!: User
     public get owner(): User {
         return this._owner

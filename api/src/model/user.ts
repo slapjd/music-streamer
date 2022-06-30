@@ -34,7 +34,6 @@ export class User {
     }
 
     @OneToMany(_type => Track, (track) => track.owner)
-    @Column()
     private _ownedTracks!: Track[]
     public get ownedTracks(): Track[] {
         return this._ownedTracks
