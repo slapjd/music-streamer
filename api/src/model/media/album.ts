@@ -1,53 +1,54 @@
-import {
-    Entity,
-    PrimaryGeneratedColumn,
-    OneToMany,
-    Column,
-} from "typeorm"
+import { Album_Entity } from "../../entities/media/album"
 import { Track } from "./track"
 
-@Entity()
 export class Album {
-    @PrimaryGeneratedColumn()
-    private _id!: number
+    protected entity!: Album_Entity
+
     public get id(): number {
-        return this._id
+        return this.entity.id
     }
 
     //Any mention of artists here exclusively means
     //*album* artists, not necessarily all the artists
     //within the album
-    @Column({
-        nullable: true
-    })
-    private _displayArtist: string | undefined
     public get displayArtist(): string | undefined {
-        return this._displayArtist
+        return this.entity.displayArtist
     }
     public set displayArtist(value: string | undefined) {
-        this._displayArtist = value
+        this.entity.displayArtist = value
     }
 
-    @Column()
-    private _title!: string
     public get title(): string {
-        return this._title
+        return this.entity.title
     }
     public set title(value: string) {
-        this._title = value
+        this.entity.title = value
     }
 
-    @OneToMany(_type => Track, (track) => track.albums)
-    private _tracks!: Track[]
     public get tracks(): Track[] {
-        return this._tracks
+        return this.entity.tracks.map(Track.fromEntity)
     }
     public set tracks(value: Track[]) {
-        this._tracks = value
+        this.entity.tracks = value.map(t => t.toEntity())
     }
 
-    constructor(title: string, displayArtist: string | undefined) {
-        this.title = title
-        this.displayArtist = displayArtist
+    public toEntity(): Album_Entity {
+        return this.entity
+    }
+
+    public constructor() {}
+
+    static fromEntity(entity: Album_Entity): Album {
+        const output = new Album()
+        output.entity = entity
+        return output
+    }
+
+    static fromData(title: string, displayArtist: string | undefined): Album {
+        const output = new Album()
+        output.entity = new Album_Entity()
+        output.entity.title = title
+        output.entity.displayArtist = displayArtist
+        return output
     }
 }

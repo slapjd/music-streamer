@@ -1,90 +1,82 @@
-import {
-    Entity,
-    Column,
-    PrimaryGeneratedColumn,
-    ManyToOne,
-    ManyToMany,
-    JoinTable,
-} from "typeorm"
 import { Artist } from "./artist"
 import { Album } from "./album"
-import { User } from "../user"
+import { User } from "../user/user"
+import { Track_Entity } from "../../entities/media/track"
 
-@Entity()
 export class Track {
-    @PrimaryGeneratedColumn()
-    private _id!: number
+    protected entity!: Track_Entity
+
     public get id() {
-        return this._id
+        return this.entity.id
     }
 
-    @Column()
-    private _title!: string
     public get title() {
-        return this._title
+        return this.entity.title
     }
     public set title (value: string) {
-        this._title = value
+        this.entity.title = value
     }
 
-    @Column({
-        nullable: true
-    })
-    private _displayArtist: string | undefined
     public get displayArtist(): string | undefined {
-        return this._displayArtist
+        return this.entity.displayArtist
     }
     public set displayArtist(value: string | undefined) {
-        this._displayArtist = value
+        this.entity.displayArtist = value
     }
 
-    @ManyToMany(_type => Artist, (artist) => artist.tracks)
-    @JoinTable()
-    private _artists!: Artist[]
     public get artists(): Artist[] {
-        return this._artists
+        return this.entity.artists.map(Artist.fromEntity)
     }
     public set artists(value: Artist[]) {
-        this._artists = value
+        this.entity.artists = value.map(a => a.toEntity())
     }
 
-    @ManyToOne(_type => Album, (album) => album.tracks)
-    private _albums!: Album[]
     public get albums(): Album[] {
-        return this._albums
+        return this.entity.albums.map(Album.fromEntity)
     }
     public set albums(value: Album[]) {
-        this._albums = value
+        this.entity.albums = value.map(a => a.toEntity())
     }
 
-    @ManyToOne(_type => User, (user) => user.ownedTracks)
-    private _owner!: User
     public get owner(): User {
-        return this._owner
+        return User.fromEntity(this.entity.owner)
     }
     public set owner(value: User) {
-        this._owner = value
+        this.entity.owner = value.toEntity()
     }
 
-    @Column()
-    private _filename!: string
     public get filename(): string {
-        return this._filename
+        return this.entity.filename
     }
     public set filename(value: string) {
-        this._filename = value
+        this.entity.filename = value
     }
 
-    constructor(
+    public toEntity(): Track_Entity {
+        return this.entity
+    }
+
+    protected constructor() {}
+
+    static fromEntity(entity: Track_Entity): Track {
+        const output = new Track()
+        output.entity = entity
+        return output
+    }
+
+    static fromData(
         title: string,
         displayArtist: string | undefined,
         artists: Artist[], albums: Album[],
         filename: string
-    ) {
-        this.title = title
-        this.displayArtist = displayArtist
-        this.artists = artists
-        this.albums = albums
-        this.filename = filename
+    ): Track {
+        const output = new Track()
+        output.entity = new Track_Entity()
+        output.entity.title = title
+        output.entity.displayArtist = displayArtist
+        output.entity.artists = artists
+        output.entity.albums = albums
+        output.entity.filename = filename
+        return output
     }
 }

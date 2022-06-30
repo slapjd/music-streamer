@@ -1,39 +1,44 @@
-import {
-    Entity,
-    PrimaryGeneratedColumn,
-    Column,
-    ManyToMany,
-} from "typeorm"
+import { Artist_Entity } from "../../entities/media/artist"
 import { Track } from "./track"
 
-@Entity()
 export class Artist {
-    @PrimaryGeneratedColumn()
-    private _id!: number
+    protected entity!: Artist_Entity
+
     public get id(): number {
-        return this._id
+        return this.entity.id
     }
 
-    @Column("text")
-    private _name!: string
     public get name(): string {
-        return this._name
+        return this.entity.name
     }
     public set name(value: string) {
-        this._name = value
+        this.entity.name = value
     }
 
-    @ManyToMany(_type => Track, (track) => track.artists)
-    private _tracks!: Track[]
     public get tracks(): Track[] {
-        return this._tracks
+        return this.entity.tracks.map(Track.fromEntity)
     }
     public set tracks(value: Track[]) {
-        this._tracks = value
+        this.entity.tracks = value.map(t => t.toEntity())
     }
 
-    constructor(name: string) {
-        this.name = name
+    public toEntity(): Artist_Entity {
+        return this.entity
+    }
+
+    protected constructor() {}
+
+    static fromEntity(entity: Artist_Entity): Artist {
+        const output = new Artist()
+        output.entity = entity
+        return output
+    }
+
+    static fromData(name: string): Artist {
+        const output = new Artist()
+        output.entity = new Artist_Entity()
+        output.entity.name = name
+        return output
     }
 
     //Fallback in case there's no display name for the artist on the track
