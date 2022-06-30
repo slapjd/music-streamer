@@ -1,0 +1,24 @@
+{
+  "name": "musicstreamer",
+  "version": "1.0.0",
+  "description": "Homebrewed Music Streaming Service",
+  "scripts": {
+    "server": "npm run dev --prefix api",
+    "client": "npm run dev --prefix client",
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/slapjd/music-streamer.git"
+  },
+  "author": "slapjd",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/slapjd/music-streamer/issues"
+  },
+  "homepage": "https://github.com/slapjd/music-streamer#readme",
+  "devDependencies": {
+    "concurrently": "^7.2.2"
+  }
+}
