@@ -19,6 +19,6 @@ export class Album {
     @Column()
     title!: string
 
-    @OneToMany(type => Track, (track) => track.albums)
+    @OneToMany(_type => Track, (track) => track.albums)
     tracks!: Track[]
 }
