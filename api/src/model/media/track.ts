@@ -13,28 +13,80 @@ import { User } from "../user"
 @Entity()
 export class Track {
     @PrimaryGeneratedColumn()
-    id!: number
+    private _id!: number
+    public get id() {
+        return this._id
+    }
 
     @Column()
-    title!: string
+    private _title!: string
+    public get title() {
+        return this._title
+    }
+    public set title (value: string) {
+        this._title = value
+    }
 
     @Column({
         nullable: true
     })
-    displayArtist: string | undefined
+    private _displayArtist: string | undefined
+    public get displayArtist(): string | undefined {
+        return this._displayArtist
+    }
+    public set displayArtist(value: string | undefined) {
+        this._displayArtist = value
+    }
 
     @ManyToMany(() => Artist, (artist) => artist.tracks)
     @JoinTable()
-    artists!: Artist[]
+    private _artists!: Artist[]
+    public get artists(): Artist[] {
+        return this._artists
+    }
+    public set artists(value: Artist[]) {
+        this._artists = value
+    }
 
     @ManyToOne(_type => Album, (album) => album.tracks)
     @JoinTable()
-    albums!: Album[]
+    private _albums!: Album[]
+    public get albums(): Album[] {
+        return this._albums
+    }
+    public set albums(value: Album[]) {
+        this._albums = value
+    }
 
     @ManyToOne(_type => User, (user) => user.ownedTracks)
     @Column()
-    owner!: User
+    private _owner!: User
+    public get owner(): User {
+        return this._owner
+    }
+    public set owner(value: User) {
+        this._owner = value
+    }
 
     @Column()
-    filename!: string
+    private _filename!: string
+    public get filename(): string {
+        return this._filename
+    }
+    public set filename(value: string) {
+        this._filename = value
+    }
+
+    constructor(
+        title: string,
+        displayArtist: string | undefined,
+        artists: Artist[], albums: Album[],
+        filename: string
+    ) {
+        this.title = title
+        this.displayArtist = displayArtist
+        this.artists = artists
+        this.albums = albums
+        this.filename = filename
+    }
 }

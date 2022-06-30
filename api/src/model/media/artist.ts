@@ -9,13 +9,32 @@ import { Track } from "./track"
 @Entity()
 export class Artist {
     @PrimaryGeneratedColumn()
-    id!: number
+    private _id!: number
+    public get id(): number {
+        return this._id
+    }
 
     @Column("text")
-    name!: string
+    private _name!: string
+    public get name(): string {
+        return this._name
+    }
+    public set name(value: string) {
+        this._name = value
+    }
 
     @ManyToMany(_type => Track, (track) => track.artists)
-    tracks!: Track[]
+    private _tracks!: Track[]
+    public get tracks(): Track[] {
+        return this._tracks
+    }
+    public set tracks(value: Track[]) {
+        this._tracks = value
+    }
+
+    constructor(name: string) {
+        this.name = name
+    }
 
     //Fallback in case there's no display name for the artist on the track
     static artistArrayToDisplayString(artists: Artist[]) : string {
