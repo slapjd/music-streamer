@@ -2,8 +2,12 @@ import { Artist } from "./artist"
 import { Album } from "./album"
 import { User } from "../user/user"
 import { Track_Entity } from "../../entities/media/track"
+import type { Repository } from "typeorm"
+import dataSource from "../../entities/data_source"
 
 export class Track {
+    static repo: Repository<Track_Entity> = dataSource.getRepository(Track_Entity)
+
     protected entity!: Track_Entity
 
     public get id() {
@@ -17,10 +21,10 @@ export class Track {
         this.entity.title = value
     }
 
-    public get displayArtist(): string | undefined {
+    public get displayArtist(): string | null {
         return this.entity.displayArtist
     }
-    public set displayArtist(value: string | undefined) {
+    public set displayArtist(value: string | null) {
         this.entity.displayArtist = value
     }
 
@@ -31,11 +35,11 @@ export class Track {
         this.entity.artists = value.map(a => a.toEntity())
     }
 
-    public get albums(): Album[] {
-        return this.entity.albums.map(Album.fromEntity)
+    public get album(): Album {
+        return Album.fromEntity(this.entity.album)
     }
-    public set albums(value: Album[]) {
-        this.entity.albums = value.map(a => a.toEntity())
+    public set album(value: Album) {
+        this.entity.album = value.toEntity()
     }
 
     public get owner(): User {
@@ -56,6 +60,10 @@ export class Track {
         return this.entity
     }
 
+    public async save() {
+        await Track.repo.save(this.entity)
+    }
+
     protected constructor() {}
 
     static fromEntity(entity: Track_Entity): Track {
@@ -66,16 +74,15 @@ export class Track {
 
     static fromData(
         title: string,
-        displayArtist: string | undefined,
-        artists: Artist[], albums: Album[],
+        displayArtist: string | null,
+        artists: Artist[],
         filename: string
     ): Track {
         const output = new Track()
         output.entity = new Track_Entity()
         output.entity.title = title
         output.entity.displayArtist = displayArtist
-        output.entity.artists = artists
-        output.entity.albums = albums
+        output.entity.artists = artists.map(a => a.toEntity())
         output.entity.filename = filename
         return output
     }

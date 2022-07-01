@@ -15,13 +15,14 @@ export class Album_Entity {
     //*album* artists, not necessarily all the artists
     //within the album
     @Column({
+        type: 'varchar',
         nullable: true
     })
-    displayArtist: string | undefined
+    displayArtist!: string | null
 
     @Column()
     title!: string
 
-    @OneToMany(_type => Track_Entity, (track) => track.albums)
+    @OneToMany(_type => Track_Entity, (track) => track.album)
     tracks!: Track_Entity[]
 }

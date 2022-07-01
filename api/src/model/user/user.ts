@@ -1,7 +1,11 @@
+import type { Repository } from "typeorm"
+import dataSource from "../../entities/data_source"
 import { User_Entity } from "../../entities/user/user"
 import { Track } from "../media/track"
 
 export class User {
+    static repo: Repository<User_Entity> = dataSource.getRepository(User_Entity)
+
     protected entity!: User_Entity
 
     public get id(): number {
@@ -37,6 +41,10 @@ export class User {
         return this.entity
     }
 
+    public async save() {
+        await User.repo.save(this.entity)
+    }
+
     protected constructor() {}
 
     static fromEntity(entity: User_Entity): User {
@@ -53,6 +61,7 @@ export class User {
         output.entity = new User_Entity()
         output.entity.username = username
         output.entity.password_hash = password //TODO: hash password with libsodium
+        output.entity.ownedTracks = []
         return output
     }
 }

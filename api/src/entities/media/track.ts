@@ -19,16 +19,17 @@ export class Track_Entity {
     title!: string
     
     @Column({
+        type: 'varchar',
         nullable: true
     })
-    displayArtist: string | undefined
+    displayArtist!: string | null
 
     @ManyToMany(_type => Artist_Entity, (artist) => artist.tracks)
     @JoinTable()
     artists!: Artist_Entity[]
 
     @ManyToOne(_type => Album_Entity, (album) => album.tracks)
-    albums!: Album_Entity[]
+    album!: Album_Entity
 
     @ManyToOne(_type => User_Entity, (user) => user.ownedTracks)
     owner!: User_Entity

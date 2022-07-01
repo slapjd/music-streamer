@@ -1,7 +1,11 @@
+import type { Repository } from "typeorm"
+import dataSource from "../../entities/data_source"
 import { Artist_Entity } from "../../entities/media/artist"
 import { Track } from "./track"
 
 export class Artist {
+    static repo: Repository<Artist_Entity> = dataSource.getRepository(Artist_Entity)
+
     protected entity!: Artist_Entity
 
     public get id(): number {
@@ -24,6 +28,10 @@ export class Artist {
 
     public toEntity(): Artist_Entity {
         return this.entity
+    }
+
+    public async save() {
+        await Artist.repo.save(this.entity)
     }
 
     protected constructor() {}
