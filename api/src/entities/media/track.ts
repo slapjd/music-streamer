@@ -28,7 +28,9 @@ export class Track_Entity {
     @JoinTable()
     artists!: Artist_Entity[]
 
-    @ManyToOne(_type => Album_Entity, (album) => album.tracks)
+    @ManyToOne(_type => Album_Entity, (album) => album.tracks, {
+        eager: true //We almost always want the album with the track so i think this is fine
+    })
     album!: Album_Entity
 
     @ManyToOne(_type => User_Entity, (user) => user.ownedTracks)
