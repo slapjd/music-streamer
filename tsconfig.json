@@ -1,0 +1,7 @@
+{
+    "extends": "@tsconfig/node16-strictest/tsconfig.json",
+    "compilerOptions": {
+        "sourceMap": true,
+        "outDir": "./dist"
+    }
+}
