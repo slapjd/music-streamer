@@ -1,0 +1,23 @@
+version: "3"
+
+services:
+  api:
+    image: slapjd/musicstreamer-api
+    build: ./api
+    ports:
+      - 3000:3000
+#     - HOST:CONTAINER
+    volumes:
+      - ./database:/var/lib/mysql
+    env_file:
+      - .env
+    restart: unless-stopped
+  mariadb:
+    image: mariadb
+    environment:
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+    volumes:
+      - ./database:/var/lib/mysql
+    restart: unless-stopped

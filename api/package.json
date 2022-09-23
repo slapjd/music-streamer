@@ -2,8 +2,9 @@
   "name": "express-typeorm",
   "version": "1.0.0",
   "description": "Typescript with express tutorial",
-  "main": "index.ts",
+  "exports": "./index.js",
   "private": false,
+  "type": "module",
   "scripts": {
     "start": "node ./dist/index.js",
     "start:dev": "nodemon",
@@ -13,11 +14,24 @@
   "author": "slapjd",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.1"
+    "express": "^4.18.1",
+    "express-session": "^1.17.3",
+    "express-validation": "^4.1.0",
+    "joi": "^17.7.0",
+    "libsodium-wrappers": "^0.7.10",
+    "music-metadata": "^8.1.0",
+    "mysql": "^2.18.1",
+    "reflect-metadata": "^0.1.13",
+    "socket.io": "^4.5.3",
+    "sqlite3": "^5.1.1",
+    "typeorm": "^0.3.10"
   },
   "devDependencies": {
     "@tsconfig/node16-strictest": "^1.0.4",
+    "@tsconfig/node16-strictest-esm": "^1.0.3",
     "@types/express": "^4.17.14",
+    "@types/express-session": "^1.17.5",
+    "@types/libsodium-wrappers": "^0.7.9",
     "@types/node": "^18.7.19",
     "nodemon": "^2.0.20",
     "ts-node": "^10.9.1",
