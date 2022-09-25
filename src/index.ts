@@ -1,6 +1,7 @@
 import express from 'express';
 import { mainDataSource } from './database';
-import authRouter from './auth';
+import usersRouter from './users';
+import authRouter from './auth'
 
 //Fuck singletons and shit just do what typeorm bloody recommends
 mainDataSource
@@ -14,7 +15,8 @@ mainDataSource
 
 const app: express.Application = express()
 app.use(express.json())
-app.use('/users', authRouter)
+app.use('/users', usersRouter)
+app.use('/auth', authRouter)
 
 //This will be set by docker eventually
 const port: Number = Number(process.env['PORT']) || 3000;

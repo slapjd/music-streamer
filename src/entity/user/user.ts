@@ -26,7 +26,7 @@ export class User {
     }
 
     public merge(obj: DeepPartial<User>): User {
-        //merges *public* properties into self
+        //This *feels* stupid but i can't see any other way of preventing garbage
         delete (obj as any).password_hash //Prevents direct writing of password_hash
         return Object.assign(this, obj)
     }
