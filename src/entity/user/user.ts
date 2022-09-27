@@ -4,7 +4,9 @@ import {
     Column,
     PrimaryGeneratedColumn,
     DeepPartial,
+    OneToMany,
 } from "typeorm"
+import { Session } from "../auth/session"
 
 @Entity()
 export class User {
@@ -16,6 +18,9 @@ export class User {
 
     @Column({select: false})
     protected password_hash!: string
+
+    @OneToMany(_type => Session, (session) => session.user)
+    public loginSessions!: Session[]
 
     protected set password(value: string) {
         this.password_hash = crypto_pwhash_str(value, crypto_pwhash_OPSLIMIT_INTERACTIVE, crypto_pwhash_MEMLIMIT_INTERACTIVE)

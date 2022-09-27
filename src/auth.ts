@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express'
 import { mainDataSource } from './database'
+import { Session } from './entity/auth/session'
 import { User } from './entity/user/user'
 
 const router: express.Router = express.Router()
@@ -15,11 +16,17 @@ router.get("/", async function (req: Request, res: Response) {
     .where("user.username = :username", { username: req.body['username'] })
     .getOne()
 
-    if (user === null) return res.status(404).send({message: "User does not exist!"})
+    if (user === null) return res.status(401).send({message: "Incorrect username or password"})
+    
 
-    //TODO: create and return session
-    return res.send({success: user.compare_password_hash(req.body['password'])})
-    //return res.send("TEST")
+    if (user.compare_password_hash(req.body['password'])) {
+        const session = Session.synthesize(user)
+        mainDataSource.getRepository(Session).save(session) //Save new session so it's valid
+        return res.send({token: (session as any).secret}) //Should be the only time we need to access the secret property directly
+    } else {
+        //Probably comes under DRY but sod it it's like 1 if statement
+        return res.status(401).send({message: "Incorrect username or password"}) //401 in theory is missing or incorrect credentials
+    }
 })
 
 export default router
