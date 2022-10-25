@@ -6,11 +6,18 @@ import usersRouter from './users';
 import authRouter from './auth'
 import { Session } from './entity/auth/session';
 import type { Repository } from 'typeorm';
+import { User } from './entity/user/user';
 
 //TODO: Figure out if this should be moved somewhere else
 declare module 'express-session' {
     interface SessionData {
-        user_id: number
+        user_id?: number
+    }
+}
+
+declare module 'express-serve-static-core' {
+    interface Request {
+        user?: User
     }
 }
 
@@ -35,6 +42,22 @@ app.use(session({
         ttl: 86400
     }).connect(mainDataSource.getRepository(Session) as Repository<ISession>), //It complains unless i explicitly tell it this
 }))
+//I don't like this middleware because i feel like when the session is loaded the user should just be loaded in relationally
+//For now i'll leave it here because it's the only way i can figure out to make this work but i feel like what i want should
+//be possible
+app.use(async function (req, _res, next) {
+    if (req.session.user_id !== undefined) {
+        const user = await mainDataSource.getRepository(User).findOneBy({
+            id: req.session.user_id
+        })
+
+        if (user !== null) {
+            req.user = user
+        }
+    }
+
+    next()
+})
 app.use('/users', usersRouter)
 app.use('/auth', authRouter)
 
