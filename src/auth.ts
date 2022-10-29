@@ -21,21 +21,19 @@ router.get("/", async function (req: Request, res: Response) {
     }
 
     //Username and password should have been valid if we arrived at this point
-    req.session.user_id = user.id //TODO: maybe try to abstract away the id and just store user objects but good luck with that quite frankly
+    req.session.user = user
 
     return res.send({message: "Success!"})
 })
 
 router.get("/test", async function (req: Request, res: Response) {
-    if (req.session.user_id === undefined) {
-        return res.status(400).send({message: "NO"})
+    if (req.sessionStore.all !== undefined) {
+        req.sessionStore.all((_, data) => {
+            console.log(data)
+        })
     }
-
-    const user = await mainDataSource.getRepository(User).findOneBy({
-        id: req.session.user_id
-    })
-
-    return res.send(user)
+        
+    return res.send(req.session.user)
 })
 
 export default router
