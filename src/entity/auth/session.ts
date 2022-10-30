@@ -9,7 +9,7 @@ import {
     ManyToOne,
     PrimaryColumn,
 } from "typeorm"
-import type { ISession } from "../../RelationalStore"
+import type { ISession } from "../../RelationalStore/RelationalStore"
 import { User } from "../user/user"
 
 @Entity()

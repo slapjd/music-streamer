@@ -1,6 +1,6 @@
 import { SessionData, Store } from 'express-session';
 import type { Repository } from 'typeorm';
-import { Session as DB_Session } from './entity/auth/session';
+import { Session as DB_Session } from '../entity/auth/session';
 
 export type ISession = SessionData & {id: string}
 
