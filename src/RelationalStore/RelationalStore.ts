@@ -42,7 +42,7 @@ export class RelationalStore<T extends ISession> extends Store {
         this.repo.save(session_db).then((_result) => {
             if (callback !== undefined) {
                 callback(null)
-                //TODO: actually check result maybe?
+                //TODO: check if db query failed and translate error for express-session
             }
         })
     }
@@ -53,7 +53,7 @@ export class RelationalStore<T extends ISession> extends Store {
         }).then((_result) => {
             if (callback !== undefined) {
                 callback(null)
-                //TODO: actually check result maybe?
+                //TODO: check if db query failed and translate error for express-session
             }
         })
     }
@@ -74,6 +74,7 @@ export class RelationalStore<T extends ISession> extends Store {
         this.repo.delete({}).then((_result) => {
             if (callback !== undefined) {
                 callback(null)
+                //TODO: check if db query failed and translate error for express-session
             }
         })
     }
@@ -84,7 +85,7 @@ export class RelationalStore<T extends ISession> extends Store {
 
             sess.cookie = session.cookie
             const session_db = new DB_Session()
-            session_db.id = sid //I don't like doing this manually but whatever
+            session_db.id = sid
             Object.assign(session_db, sess)
             this.repo.save(session_db).then(() => {
                 if (callback !== undefined) callback()

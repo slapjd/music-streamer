@@ -20,8 +20,8 @@ router.get("/:id", async function (req: Request, res: Response) {
     return res.send(results)
 })
 
+//TODO: Require permissions to make a new user
 router.post("/", async function (req: Request, res: Response) {
-    //TODO: Middleware?
     if (req.body['username'] === undefined || req.body['password'] === undefined) {
         return res.status(400).send({ message: "Need username and password to register" })
     }
@@ -54,9 +54,9 @@ router.put("/:id", async function (req: Request, res: Response) {
     return res.send(results)
 })
 
+//TODO: Authenticate with admin or make sure it's the same user
 router.delete("/:id", async function (req: Request, res: Response) {
     if (req.params['id'] === undefined) return res.status(500).send({message: "USER ID EMPTY BUT ROUTED TO GET /:id"})
-    //TODO: Authenticate with admin
 
     const results = await mainDataSource.getRepository(User).delete(+req.params['id'])
     return res.send(results)
