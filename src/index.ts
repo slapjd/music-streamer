@@ -1,6 +1,6 @@
 import express from 'express';
 import session from 'express-session'
-import { RelationalStore } from './RelationalStore/RelationalStore'
+import { RelationalStore } from './RelationalStore'
 import { mainDataSource } from './dbinfo/database';
 import usersRouter from './users';
 import authRouter from './auth'
