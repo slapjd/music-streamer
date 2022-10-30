@@ -6,4 +6,5 @@ export const mainDataSource = new DataSource({
     synchronize: true,
     logging: false,
     entities: ['src/entity/**/*.ts'],
+    migrations: []
 })
