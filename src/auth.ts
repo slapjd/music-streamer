@@ -1,6 +1,6 @@
 import express, { Request, Response, } from 'express'
-import { mainDataSource } from './dbinfo/database'
-import { User } from './entity/user/user'
+import { mainDataSource } from './lib/dbinfo/database'
+import { User } from './lib/entity/user/user'
 
 const router: express.Router = express.Router()
 

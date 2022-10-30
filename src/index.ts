@@ -1,11 +1,11 @@
 import express from 'express';
 import session from 'express-session'
-import { RelationalStore } from './RelationalStore'
-import { mainDataSource } from './dbinfo/database';
+import { RelationalStore } from './lib/RelationalStore'
+import { mainDataSource } from './lib/dbinfo/database';
 import usersRouter from './users';
 import authRouter from './auth'
-import { Session } from './entity/auth/session';
-import type { User } from './entity/user/user';
+import { Session } from './lib/entity/auth/session';
+import type { User } from './lib/entity/user/user';
 
 //TODO: Figure out if this should be moved somewhere else
 declare module 'express-session' {
