@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express'
-import { mainDataSource } from './database'
+import { mainDataSource } from './entity/database'
 import { User } from './entity/user/user'
 
 const router: express.Router = express.Router()
