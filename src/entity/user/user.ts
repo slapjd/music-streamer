@@ -7,6 +7,7 @@ import {
     OneToMany,
 } from "typeorm"
 import { Session } from "../auth/session"
+import { Track } from "../media/track"
 
 @Entity()
 export class User {
@@ -29,6 +30,9 @@ export class User {
     public compare_password_hash(password: string): boolean {
         return crypto_pwhash_str_verify(this.password_hash, password)
     }
+
+    @OneToMany(_type => Track, (track) => track.owner)
+    public ownedTracks!: Track[]
 
     public merge(obj: DeepPartial<User>): User {
         //This *feels* stupid but i can't see any other way of preventing garbage
