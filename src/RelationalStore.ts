@@ -5,7 +5,7 @@ import { Session as DB_Session } from './entity/auth/session';
 export type ISession = SessionData & {id: string}
 
 export class RelationalStore<T extends ISession> extends Store {
-    repo: Repository<ISession> //If I use T here it creates big boy typing issues for TypeORM
+    repo: Repository<ISession> //If I use T here it creates big boy issues for TypeORM (wrong types for all the properties)
     
     //I cannot for the life of me figure out how to add eventemitteroptions to this so it remains as is
     constructor(repo: Repository<T>) {
@@ -14,9 +14,15 @@ export class RelationalStore<T extends ISession> extends Store {
     }
 
     get(sid: string, callback: (err: any, session?: SessionData | null | undefined) => void): void {
-        this.repo.findOneBy({
-            id: sid
-        }).then((sess) => {
+        let relations = this.repo.metadata.relations.map(relation => {
+            return relation.propertyName;
+        }); //Workaround to load everything as eager because that's more similar to how express-session works by default
+        this.repo.findOne({
+            where: {
+                id: sid
+            },
+            relations: relations
+        }).then((sess => {
             if (sess?.cookie.expires && sess.cookie.expires.getTime() < Date.now()) {
                 this.repo.delete({
                     id: sid
@@ -26,10 +32,9 @@ export class RelationalStore<T extends ISession> extends Store {
             }
 
             callback(null, sess)
-        })        
+        }))     
     }
 
-    //TODO: make sure this doesn't mangle the object
     set(sid: string, session: SessionData, callback?: ((err?: any) => void) | undefined): void {
         const session_db = new DB_Session()
         session_db.id = sid //I don't like doing this manually but whatever

@@ -17,7 +17,7 @@ export class Session implements ISession {
     @PrimaryColumn("varchar", { length: 255 })
     public id!: string
 
-    @ManyToOne(_type => User, (user) => user.loginSessions, {nullable: true, eager: true})
+    @ManyToOne(_type => User, (user) => user.loginSessions, {nullable: true})
     public user: User | undefined
 
     @Column("text")
