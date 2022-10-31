@@ -26,14 +26,14 @@ router.get("/", async function (req: Request, res: Response) {
     return res.send({message: "Success!"})
 })
 
-router.get("/test", async function (req: Request, res: Response) {
-    if (req.sessionStore.all !== undefined) {
-        req.sessionStore.all((_, data) => {
-            console.log(data)
-        })
-    }
+// router.get("/test", async function (req: Request, res: Response) {
+//     if (req.sessionStore.all !== undefined) {
+//         req.sessionStore.all((_, data) => {
+//             console.log(data)
+//         })
+//     }
         
-    return res.send(req.session.user)
-})
+//     return res.send(req.session.user)
+// })
 
 export default router

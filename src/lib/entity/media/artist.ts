@@ -6,13 +6,14 @@ export class Artist {
     @PrimaryGeneratedColumn()
     public id!: number
 
+    //Unknown artist will be null
     @Column()
-    public name!: string
+    public name: string | null = null
 
     @ManyToMany(_type => Track, (track) => track.artists, {
         nullable: true
     })
-    public tracks!: Track[]
+    public tracks: Track[] = []
 
     public static fromName(name: string): Artist {
         const output = new Artist

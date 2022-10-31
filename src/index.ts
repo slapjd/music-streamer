@@ -4,6 +4,7 @@ import { RelationalStore } from './lib/RelationalStore'
 import { mainDataSource } from './lib/dbinfo/database';
 import usersRouter from './users';
 import authRouter from './auth'
+import mediaRouter from './media'
 import { Session } from './lib/entity/auth/session';
 import type { User } from './lib/entity/user/user';
 
@@ -34,6 +35,7 @@ app.use(session({
 }))
 app.use('/users', usersRouter)
 app.use('/auth', authRouter)
+app.use('/media', mediaRouter)
 
 //TODO: set this via .env (docker)
 const port: Number = Number(process.env['PORT']) || 3000;

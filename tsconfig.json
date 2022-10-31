@@ -4,6 +4,7 @@
         "sourceMap": true,
         "outDir": "./dist",
         "emitDecoratorMetadata": true,
-        "experimentalDecorators": true
+        "experimentalDecorators": true,
+        "exactOptionalPropertyTypes": false //ehh fuck it whatcouldgowrong.jpg
     }
 }
