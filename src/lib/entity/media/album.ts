@@ -10,18 +10,18 @@ export class Album {
     @Column({
         nullable: true
     })
-    public title: string | null = null
+    public title?: string
 
     //Album artist is not necessarily stored
     @Column({
         nullable: true
     })
-    public albumArtist: string | null = null
+    public albumArtist?: string
 
     @OneToMany(_type => Track, (track) => track.album, {
         nullable: true
     })
-    public tracks: Track[] = []
+    public tracks?: Track[]
 
     public static fromData(title?: string, albumArtist?: string): Album {
         const output = new Album

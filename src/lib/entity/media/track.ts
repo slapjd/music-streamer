@@ -13,22 +13,22 @@ export class Track {
     @Column({
         nullable: true
     })
-    public title: string | null = null
+    public title?: string
 
     @Column({
         nullable: true
     })
-    public displayArtist: string | null = null
+    public displayArtist?: string
 
     @ManyToMany(_type => Artist, (artist) => artist.tracks, {
         nullable: true
     })
-    public artists: Artist[] = []
+    public artists?: Artist[]
 
     @ManyToOne(_type => Album, (album) => album.tracks, {
         nullable: true
     })
-    public album: Album | null = null
+    public album?: Album
 
     //All tracks need a user that uploaded them
     @ManyToOne(_type => User, (user) => user.ownedTracks)

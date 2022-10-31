@@ -76,6 +76,7 @@ router.post("/", async function (req: Request, res: Response) {
         const newTrack = new Track()
         newTrack.owner = req.session.user
         newTrack.filename = path
+        newTrack.artists = []
 
         //Process all artists
         if (tag.common.artists !== undefined) {
@@ -121,9 +122,7 @@ router.post("/", async function (req: Request, res: Response) {
 
         newTrack.album = album
 
-        var title: string | null = tag.common.title !== undefined ?
-            tag.common.title :
-            null
+        var title: string | undefined = tag.common.title
         
         newTrack.title = title
 

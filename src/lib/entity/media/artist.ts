@@ -8,12 +8,12 @@ export class Artist {
 
     //Unknown artist will be null
     @Column()
-    public name: string | null = null
+    public name?: string
 
     @ManyToMany(_type => Track, (track) => track.artists, {
         nullable: true
     })
-    public tracks: Track[] = []
+    public tracks?: Track[]
 
     public static fromName(name: string): Artist {
         const output = new Artist
