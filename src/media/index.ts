@@ -1,5 +1,5 @@
 import express from 'express'
-import tracksRouter from './tracks'
+import tracksRouter from './tracks.js'
 
 const router: express.Router = express.Router()
 

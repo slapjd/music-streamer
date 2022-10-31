@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Track } from "./track";
+import { Track } from "./track.js";
 
 @Entity()
 export class Artist {

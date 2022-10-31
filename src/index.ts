@@ -1,12 +1,12 @@
 import express from 'express';
 import session from 'express-session'
-import { RelationalStore } from './lib/RelationalStore'
-import { mainDataSource } from './lib/dbinfo/database';
-import usersRouter from './users';
-import authRouter from './auth'
-import mediaRouter from './media'
-import { Session } from './lib/entity/auth/session';
-import type { User } from './lib/entity/user/user';
+import { RelationalStore } from './lib/RelationalStore/index.js'
+import { mainDataSource } from './lib/dbinfo/database.js';
+import usersRouter from './users.js';
+import authRouter from './auth.js'
+import mediaRouter from './media/index.js'
+import { Session } from './lib/entity/auth/session.js';
+import type { User } from './lib/entity/user/user.js';
 
 //TODO: Figure out if this should be moved somewhere else
 declare module 'express-session' {

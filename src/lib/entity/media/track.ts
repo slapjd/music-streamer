@@ -1,7 +1,7 @@
-import { Column, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { User } from "../user/user";
-import { Album } from "./album";
-import { Artist } from "./artist";
+import { Column, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn, Relation } from "typeorm";
+import { User } from "../user/user.js";
+import { Album } from "./album.js";
+import { Artist } from "./artist.js";
 
 @Entity()
 export class Track {
@@ -32,7 +32,7 @@ export class Track {
 
     //All tracks need a user that uploaded them
     @ManyToOne(_type => User, (user) => user.ownedTracks)
-    public owner!: User
+    public owner!: Relation<User> //For some reason i need to do this?
 
     //I sincerely hope noone ever has a temptation to make this optional
     @Column()

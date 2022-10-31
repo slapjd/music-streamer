@@ -1,13 +1,13 @@
 import express, { Request, Response } from 'express'
 import { FindOperator, IsNull } from 'typeorm'
 import type { Repository } from 'typeorm'
-import { mainDataSource } from '../lib/dbinfo/database'
-import { Track } from '../lib/entity/media/track'
+import { mainDataSource } from '../lib/dbinfo/database.js'
+import { Track } from '../lib/entity/media/track.js'
 import fs from 'fs/promises'
 import type { Dir } from 'fs'
 import { parseFile } from 'music-metadata'
-import { Artist } from '../lib/entity/media/artist'
-import { Album } from '../lib/entity/media/album'
+import { Artist } from '../lib/entity/media/artist.js'
+import { Album } from '../lib/entity/media/album.js'
 
 const router: express.Router = express.Router()
 

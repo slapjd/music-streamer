@@ -1,4 +1,5 @@
-import { crypto_pwhash_MEMLIMIT_INTERACTIVE, crypto_pwhash_OPSLIMIT_INTERACTIVE, crypto_pwhash_str, crypto_pwhash_str_verify } from "libsodium-wrappers"
+import libsodium from "libsodium-wrappers"
+const { crypto_pwhash_MEMLIMIT_INTERACTIVE, crypto_pwhash_OPSLIMIT_INTERACTIVE, crypto_pwhash_str, crypto_pwhash_str_verify } = libsodium
 import {
     Entity,
     Column,
@@ -6,8 +7,8 @@ import {
     DeepPartial,
     OneToMany,
 } from "typeorm"
-import { Session } from "../auth/session"
-import { Track } from "../media/track"
+import { Session } from "../auth/session.js"
+import { Track } from "../media/track.js"
 
 @Entity()
 export class User {

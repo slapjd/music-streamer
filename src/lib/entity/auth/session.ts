@@ -10,7 +10,7 @@ import {
     PrimaryColumn,
 } from "typeorm"
 import type { ISession } from "../../RelationalStore"
-import { User } from "../user/user"
+import { User } from "../user/user.js"
 
 @Entity()
 export class Session implements ISession {
