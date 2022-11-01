@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn, Relation } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, Relation } from "typeorm";
 import { User } from "../user/user.js";
 import { Album } from "./album.js";
 import { Artist } from "./artist.js";
@@ -23,12 +23,13 @@ export class Track {
     @ManyToMany(_type => Artist, (artist) => artist.tracks, {
         nullable: true
     })
-    public artists?: Artist[]
+    @JoinTable()
+    public artists?: Relation<Artist[]>
 
     @ManyToOne(_type => Album, (album) => album.tracks, {
         nullable: true
     })
-    public album?: Album
+    public album?: Relation<Album>
 
     //All tracks need a user that uploaded them
     @ManyToOne(_type => User, (user) => user.ownedTracks)

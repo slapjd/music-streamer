@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToMany, PrimaryGeneratedColumn, Relation } from "typeorm";
 import { Track } from "./track.js";
 
 @Entity()
@@ -13,7 +13,7 @@ export class Artist {
     @ManyToMany(_type => Track, (track) => track.artists, {
         nullable: true
     })
-    public tracks?: Track[]
+    public tracks?: Relation<Track[]>
 
     public static fromName(name: string): Artist {
         const output = new Artist

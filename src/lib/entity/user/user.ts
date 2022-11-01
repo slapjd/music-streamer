@@ -1,5 +1,4 @@
 import libsodium from "libsodium-wrappers"
-const { crypto_pwhash_MEMLIMIT_INTERACTIVE, crypto_pwhash_OPSLIMIT_INTERACTIVE, crypto_pwhash_str, crypto_pwhash_str_verify } = libsodium
 import {
     Entity,
     Column,
@@ -25,11 +24,11 @@ export class User {
     public loginSessions!: Session[]
 
     protected set password(value: string) {
-        this.password_hash = crypto_pwhash_str(value, crypto_pwhash_OPSLIMIT_INTERACTIVE, crypto_pwhash_MEMLIMIT_INTERACTIVE)
+        this.password_hash = libsodium.crypto_pwhash_str(value, libsodium.crypto_pwhash_OPSLIMIT_INTERACTIVE, libsodium.crypto_pwhash_MEMLIMIT_INTERACTIVE)
         //console.log("PASSWORD CHANGE WEEEEEEEE")
     }
     public compare_password_hash(password: string): boolean {
-        return crypto_pwhash_str_verify(this.password_hash, password)
+        return libsodium.crypto_pwhash_str_verify(this.password_hash, password)
     }
 
     @OneToMany(_type => Track, (track) => track.owner)

@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn, Relation } from "typeorm";
 import { Track } from "./track.js";
 
 @Entity()
@@ -21,7 +21,7 @@ export class Album {
     @OneToMany(_type => Track, (track) => track.album, {
         nullable: true
     })
-    public tracks?: Track[]
+    public tracks?: Relation<Track[]>
 
     public static fromData(title?: string, albumArtist?: string): Album {
         const output = new Album

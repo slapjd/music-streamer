@@ -4,7 +4,7 @@ import type { Repository } from 'typeorm'
 import { mainDataSource } from '../lib/dbinfo/database.js'
 import { Track } from '../lib/entity/media/track.js'
 import fs from 'fs/promises'
-import type { Dir } from 'fs'
+import type { Dir, Stats } from 'fs'
 import { parseFile } from 'music-metadata'
 import { Artist } from '../lib/entity/media/artist.js'
 import { Album } from '../lib/entity/media/album.js'
@@ -43,8 +43,15 @@ router.post("/", async function (req: Request, res: Response) {
     if (req.body.path === undefined) return res.status(400).send({message: "Path to track required"})
     if (req.session.user === undefined) return res.status(401).send({message: "You must be logged in to do this"})
     
+
+    var stats: Stats
     //Find file
-    const stats = await fs.stat(req.body.path)
+    try {
+        stats = await fs.stat(req.body.path)
+    } catch (error) {
+        return res.status(404).send({message: "File not found on server"})
+    }
+    
     var files: string[]
     if (stats.isDirectory()) {
         const dir = await fs.opendir(req.body.path)
@@ -68,7 +75,7 @@ router.post("/", async function (req: Request, res: Response) {
         const tag = tags[i]?.tag
         if (tag === undefined || path === undefined) continue
         
-        const existing = trackRepo.findOneBy({
+        const existing = await trackRepo.findOneBy({
             filename: path
         })
         if (existing !== null) continue //Track under same file path already added, no need to import it again.
@@ -117,7 +124,7 @@ router.post("/", async function (req: Request, res: Response) {
 
         if (album === null) {
             album = Album.fromData(tag.common.album, tag.common.albumartist)
-            albumRepo.save(album)
+            await albumRepo.save(album)
         }
 
         newTrack.album = album
@@ -126,7 +133,7 @@ router.post("/", async function (req: Request, res: Response) {
         
         newTrack.title = title
 
-        trackRepo.save(newTrack)
+        await trackRepo.save(newTrack)
     }
 
     return res.send({})

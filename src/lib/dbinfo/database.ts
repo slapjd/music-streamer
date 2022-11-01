@@ -10,6 +10,5 @@ export const mainDataSource = new DataSource({
     database: ":memory:",
     synchronize: true,
     logging: false,
-    entities: [Session, Album, Artist, Track, User],
-    migrations: []
+    entities: [Session, Album, Artist, Track, User]
 })

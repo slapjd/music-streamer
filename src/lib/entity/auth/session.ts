@@ -8,6 +8,7 @@ import {
     Entity,
     ManyToOne,
     PrimaryColumn,
+    Relation,
 } from "typeorm"
 import type { ISession } from "../../RelationalStore"
 import { User } from "../user/user.js"
@@ -18,7 +19,7 @@ export class Session implements ISession {
     public id!: string
 
     @ManyToOne(_type => User, (user) => user.loginSessions, {nullable: true})
-    public user: User | undefined
+    public user: Relation<User | undefined>
 
     @Column("text")
     private cookie_json = "";
