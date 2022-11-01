@@ -74,6 +74,8 @@ router.post("/", async function (req: Request, res: Response) {
         const path = tags[i]?.path
         const tag = tags[i]?.tag
         if (tag === undefined || path === undefined) continue
+
+        //TODO: Create symbolic link to a specified media folder that nginx can use to serve shit
         
         const existing = await trackRepo.findOneBy({
             filename: path

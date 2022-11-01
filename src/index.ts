@@ -8,7 +8,6 @@ import mediaRouter from './media/index.js'
 import { Session } from './lib/entity/auth/session.js';
 import type { User } from './lib/entity/user/user.js';
 
-//TODO: Figure out if this should be moved somewhere else
 declare module 'express-session' {
     interface SessionData {
         user: User | undefined

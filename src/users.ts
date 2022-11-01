@@ -49,13 +49,14 @@ router.put("/:id", async function (req: Request, res: Response) {
     }
     //mainDataSource.getRepository(User).merge(user, req.body)
     //Add any properties that are allowed to be set on a user account settings change here
+    //Actually not really required because typeorm doesn't cascade saving but whatever
     const safeBody = {
         username: req.body['username'],
         password: req.body['password']
     }
 
     //TODO: merge setters (maybe?)
-    user.merge(safeBody) //TODO: sanitize body if anything dangerous gets added to user
+    user.merge(safeBody)
     const results = await mainDataSource.getRepository(User).save(user)
     return res.send(results)
 })
