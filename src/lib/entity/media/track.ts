@@ -21,11 +21,11 @@ export class Track {
     private artistStringOverride?: string
 
     private generateArtistString(): string {
-        if (this.artists === undefined || this.artists.length < 1) return "Unknown Artist"
+        if (!this.artists || this.artists.length < 1) return "Unknown Artist"
         
         var output = ""
         this.artists.forEach((artist, i) => {
-            if (this.artists === undefined) return //FUCKING PANIC ALL HELL HAS BROKEN LOOSE
+            if (!this.artists) return //FUCKING PANIC ALL HELL HAS BROKEN LOOSE
 
             output += artist.friendlyName
             if (i < this.artists.length - 2) output += ", "//Beginning artists
@@ -36,12 +36,12 @@ export class Track {
     }
 
     public get displayArtist(): string {
-        if (this.artistStringOverride === undefined) return this.generateArtistString()
+        if (!this.artistStringOverride) return this.generateArtistString()
         else return this.artistStringOverride
     }
     public set displayArtist(value: string | undefined) {
-        if (this.generateArtistString() === value) this.artistStringOverride === undefined //No point storing it if we're just gonna generate it the same
-        else this.artistStringOverride === value
+        if (this.generateArtistString() === value) delete this.artistStringOverride //No point storing it if we're just gonna generate it the same
+        else this.artistStringOverride = value
     }
 
     @ManyToMany(_type => Artist, (artist) => artist.tracks, {
@@ -65,4 +65,14 @@ export class Track {
     //I sincerely hope noone ever has a temptation to make this optional
     @Column()
     public filename!: string
+
+    public toJSON() {
+        return {
+            title: this.title,
+            artist: this.displayArtist,
+            artists: this.artists,
+            album: this.album,
+            owner: this.owner
+        }
+    }
 }

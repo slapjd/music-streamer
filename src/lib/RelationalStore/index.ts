@@ -40,7 +40,7 @@ export class RelationalStore<T extends ISession> extends Store {
         session_db.id = sid //I don't like doing this manually but whatever
         Object.assign(session_db, session)
         this.repo.save(session_db).then((_result) => {
-            if (callback !== undefined) {
+            if (callback) {
                 callback(null)
                 //TODO: check if db query failed and translate error for express-session
             }
@@ -51,7 +51,7 @@ export class RelationalStore<T extends ISession> extends Store {
         this.repo.delete({
             id: sid
         }).then((_result) => {
-            if (callback !== undefined) {
+            if (callback) {
                 callback(null)
                 //TODO: check if db query failed and translate error for express-session
             }
@@ -72,7 +72,7 @@ export class RelationalStore<T extends ISession> extends Store {
 
     override clear(callback?: ((err?: any) => void) | undefined): void {
         this.repo.delete({}).then((_result) => {
-            if (callback !== undefined) {
+            if (callback) {
                 callback(null)
                 //TODO: check if db query failed and translate error for express-session
             }
@@ -81,14 +81,14 @@ export class RelationalStore<T extends ISession> extends Store {
 
     override touch(sid: string, session: SessionData, callback?: (() => void) | undefined): void {
         this.get(sid, (_, sess) => {
-            if (sess === null || sess === undefined) return
+            if (!sess) return
 
             sess.cookie = session.cookie
             const session_db = new DB_Session()
             session_db.id = sid
             Object.assign(session_db, sess)
             this.repo.save(session_db).then(() => {
-                if (callback !== undefined) callback()
+                if (callback) callback()
             })
         })
     }

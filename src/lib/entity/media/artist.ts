@@ -11,7 +11,7 @@ export class Artist {
     public name?: string
 
     public get friendlyName() : string {
-        if (this.name === undefined) return "Unknown Artist"
+        if (!this.name) return "Unknown Artist"
         else return this.name
     }
     

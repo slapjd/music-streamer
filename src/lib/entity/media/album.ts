@@ -25,8 +25,8 @@ export class Album {
 
     public static fromData(title?: string, albumArtist?: string): Album {
         const output = new Album
-        if (title !== undefined) output.title = title
-        if (albumArtist !== undefined) output.albumArtist = albumArtist
+        if (title) output.title = title
+        if (albumArtist) output.albumArtist = albumArtist
 
         return output
     }

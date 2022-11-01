@@ -5,7 +5,7 @@ import { User } from './lib/entity/user/user.js'
 const router: express.Router = express.Router()
 
 router.get("/", async function (req: Request, res: Response) {
-    if (req.body['username'] === undefined || req.body['password'] === undefined) { return res.status(400).send({message: "Username & password required"}) }
+    if (!req.body['username'] || !req.body['password']) { return res.status(400).send({message: "Username & password required"}) }
 
     //Because password_hash is protected we end up with this mess
     const user = await mainDataSource
@@ -27,7 +27,7 @@ router.get("/", async function (req: Request, res: Response) {
 })
 
 // router.get("/test", async function (req: Request, res: Response) {
-//     if (req.sessionStore.all !== undefined) {
+//     if (req.sessionStore.all) {
 //         req.sessionStore.all((_, data) => {
 //             console.log(data)
 //         })

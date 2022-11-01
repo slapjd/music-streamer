@@ -37,13 +37,14 @@ async function findFiles(dir: Dir, allowSymlink: boolean = false): Promise<strin
 
 router.get("/", async function (_req: Request, res: Response) {
     const tracks = await trackRepo.find()
+    console.log(tracks)
     return res.send(tracks)
 })
 
 //OK here's where the bastard importing lives and where we get to be sad
 router.post("/", async function (req: Request, res: Response) {
-    if (req.body.path === undefined) return res.status(400).send({message: "Path to track required"})
-    if (req.session.user === undefined) return res.status(401).send({message: "You must be logged in to do this"})
+    if (!req.body.path) return res.status(400).send({message: "Path to track required"})
+    if (!req.session.user) return res.status(401).send({message: "You must be logged in to do this"})
     
 
     var stats: Stats
@@ -76,7 +77,7 @@ router.post("/", async function (req: Request, res: Response) {
     for (let i = 0; i < tags.length; i++) {
         const path = tags[i]?.path
         const tag = tags[i]?.tag
-        if (tag === undefined || path === undefined) continue
+        if (!tag || !path) continue
 
         //TODO: Create symbolic link to a specified media folder that nginx can use to serve shit
         
@@ -91,7 +92,7 @@ router.post("/", async function (req: Request, res: Response) {
         newTrack.artists = []
 
         console.log(tag.native)
-        if (tag.native['vorbis'] !== undefined) {
+        if (tag.native['vorbis']) {
             //TODO: similar logic for MP3 and other tag types
             const test = tag.native['vorbis'].filter((tag) => {
                 return tag.id === 'ARTIST'
@@ -106,10 +107,10 @@ router.post("/", async function (req: Request, res: Response) {
         newTrack.displayArtist = tag.common.artist
 
         //Process all artists
-        if (tag.common.artists !== undefined) {
+        if (tag.common.artists) {
             for (let j = 0; j < tag.common.artists.length; j++) {
                 const artist_name = tag.common.artists[j];
-                if (artist_name === undefined) continue //should never happen i fucking hope?
+                if (!artist_name) continue //should never happen i fucking hope?
 
                 var artist = await artistRepo.findOneBy({
                     name: artist_name
@@ -126,11 +127,11 @@ router.post("/", async function (req: Request, res: Response) {
         }
 
         //Process album
-        var albumName: string | FindOperator<any> = tag.common.album !== undefined ?
+        var albumName: string | FindOperator<any> = tag.common.album ?
             tag.common.album :
             IsNull()
 
-        var albumArtist: string | FindOperator<any> = tag.common.albumartist !== undefined ?
+        var albumArtist: string | FindOperator<any> = tag.common.albumartist ?
             tag.common.albumartist :
             IsNull()
 

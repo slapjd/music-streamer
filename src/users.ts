@@ -12,7 +12,7 @@ const router: express.Router = express.Router()
 //This works but is dangerous in prod
 
 router.get("/:id", async function (req: Request, res: Response) {
-    if (req.params['id'] === undefined) return res.status(500).send({message: "USER ID EMPTY BUT ROUTED TO GET /:id"})
+    if (!req.params['id']) return res.status(500).send({message: "USER ID EMPTY BUT ROUTED TO GET /:id"})
 
     const results = await mainDataSource.getRepository(User).findOneBy({
         id: +req.params['id'],
@@ -22,7 +22,7 @@ router.get("/:id", async function (req: Request, res: Response) {
 
 //TODO: Require permissions to make a new user
 router.post("/", async function (req: Request, res: Response) {
-    if (req.body['username'] === undefined || req.body['password'] === undefined) {
+    if (!req.body['username'] || !req.body['password']) {
         return res.status(400).send({ message: "Need username and password to register" })
     }
     const usernameCheckResults = await mainDataSource.getRepository(User).findOneBy({
@@ -39,7 +39,7 @@ router.post("/", async function (req: Request, res: Response) {
 })
 
 router.put("/:id", async function (req: Request, res: Response) {
-    if (req.params['id'] === undefined) return res.status(500).send({message: "USER ID EMPTY BUT ROUTED TO GET /:id"})
+    if (!req.params['id']) return res.status(500).send({message: "USER ID EMPTY BUT ROUTED TO GET /:id"})
 
     const user = await mainDataSource.getRepository(User).findOneBy({
         id: +req.params['id'],
@@ -62,7 +62,7 @@ router.put("/:id", async function (req: Request, res: Response) {
 })
 
 router.delete("/:id", async function (req: Request, res: Response) {
-    if (req.params['id'] === undefined) return res.status(500).send({message: "USER ID EMPTY BUT ROUTED TO GET /:id"})
+    if (!req.params['id']) return res.status(500).send({message: "USER ID EMPTY BUT ROUTED TO GET /:id"})
     if (!req.session.user) return res.status(401).send({message: "Login required"})
     if (req.session.user.id != +req.params['id']) return res.status(403).send({message: "Not authorized to do this"}) //TODO: allow admins
 
