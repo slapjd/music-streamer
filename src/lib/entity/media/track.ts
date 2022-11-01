@@ -18,7 +18,7 @@ export class Track {
     @Column({
         nullable: true
     })
-    public displayArtist?: string
+    public displayArtist?: string //TODO: getters and setters for this with a separate private override
 
     @ManyToMany(_type => Artist, (artist) => artist.tracks, {
         nullable: true

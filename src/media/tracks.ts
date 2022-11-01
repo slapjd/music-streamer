@@ -92,6 +92,14 @@ router.post("/", async function (req: Request, res: Response) {
             for (let j = 0; j < tag.common.artists.length; j++) {
                 const artist_name = tag.common.artists[j];
                 if (artist_name === undefined) continue //should never happen i fucking hope?
+
+                //If an individual artist matches the discovered artist tag, it's most likely non-properly formatted data
+                //and i don't actually want to override the artist name on the now playing screen.
+                //TODO: in track edit endpoint add a way to set artist text in case this was a mistake
+                if (artist_name === tag.common.artist) {
+                    delete tag.common.artist
+                }
+
                 var artist = await artistRepo.findOneBy({
                     name: artist_name
                 })
@@ -106,7 +114,7 @@ router.post("/", async function (req: Request, res: Response) {
             }
         }
 
-        if (tag.common.artist !== undefined) newTrack.displayArtist = tag.common.artist //TODO: verify what happens with multiple ARTIST tags
+        if (tag.common.artist !== undefined) newTrack.displayArtist = tag.common.artist
 
         //Process album
         var albumName: string | FindOperator<any> = tag.common.album !== undefined ?
