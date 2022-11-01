@@ -21,9 +21,11 @@ async function findFiles(dir: Dir, allowSymlink: boolean = false): Promise<strin
     while (entry) {
         if (!(entry.isSymbolicLink() && !allowSymlink)) {
             if (entry.isDirectory()) {
-                output = output.concat(await findFiles(await fs.opendir(entry.name)))
+                const nextDir = await fs.opendir(dir.path + entry.name)
+                output = output.concat(await findFiles(nextDir))
+                await nextDir.close()
             } else {
-                output.push(entry.name)
+                output.push(dir.path + entry.name)
             }
         }
         
@@ -56,6 +58,7 @@ router.post("/", async function (req: Request, res: Response) {
     if (stats.isDirectory()) {
         const dir = await fs.opendir(req.body.path)
         files = await findFiles(dir)
+        await dir.close()
     } else {
         files = [req.body.path]
     }
@@ -87,18 +90,26 @@ router.post("/", async function (req: Request, res: Response) {
         newTrack.filename = path
         newTrack.artists = []
 
+        console.log(tag.native)
+        if (tag.native['vorbis'] !== undefined) {
+            //TODO: similar logic for MP3 and other tag types
+            const test = tag.native['vorbis'].filter((tag) => {
+                return tag.id === 'ARTIST'
+            })
+            if (test.length !== 1) {
+                //Multiple actual artist tags makes the artist string unreliable (usually only has the first artist).
+                //No artist tag *also* makes the artist string unreliable (we'd rather generate it on the fly instead of storing it)
+                delete tag.common.artist
+                //console.log("MULTIPLE ARTISTS IN ARTIST TAG DETECTED! DELETING ARTIST STRING")
+            }
+        }
+        newTrack.displayArtist = tag.common.artist
+
         //Process all artists
         if (tag.common.artists !== undefined) {
             for (let j = 0; j < tag.common.artists.length; j++) {
                 const artist_name = tag.common.artists[j];
                 if (artist_name === undefined) continue //should never happen i fucking hope?
-
-                //If an individual artist matches the discovered artist tag, it's most likely non-properly formatted data
-                //and i don't actually want to override the artist name on the now playing screen.
-                //TODO: in track edit endpoint add a way to set artist text in case this was a mistake
-                if (artist_name === tag.common.artist) {
-                    delete tag.common.artist
-                }
 
                 var artist = await artistRepo.findOneBy({
                     name: artist_name
@@ -113,8 +124,6 @@ router.post("/", async function (req: Request, res: Response) {
                 newTrack.artists.push(artist)
             }
         }
-
-        if (tag.common.artist !== undefined) newTrack.displayArtist = tag.common.artist
 
         //Process album
         var albumName: string | FindOperator<any> = tag.common.album !== undefined ?

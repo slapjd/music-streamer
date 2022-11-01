@@ -10,6 +10,11 @@ export class Artist {
     @Column()
     public name?: string
 
+    public get friendlyName() : string {
+        if (this.name === undefined) return "Unknown Artist"
+        else return this.name
+    }
+    
     @ManyToMany(_type => Track, (track) => track.artists, {
         nullable: true
     })
