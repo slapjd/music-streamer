@@ -33,7 +33,7 @@ export class Track {
 
     //All tracks need a user that uploaded them
     @ManyToOne(_type => User, (user) => user.ownedTracks)
-    public owner!: Relation<User> //For some reason i need to do this?
+    public owner!: Relation<User> //Original reason I made types Relations. Shit broke when I didn't
 
     //I sincerely hope noone ever has a temptation to make this optional
     @Column()
