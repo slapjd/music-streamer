@@ -35,8 +35,16 @@ async function findFiles(dir: Dir, allowSymlink: boolean = false): Promise<strin
     return output
 }
 
-router.get("/", async function (_req: Request, res: Response) {
-    const tracks = await trackRepo.find()
+router.get("/", async function (req: Request, res: Response) {
+    if (!req.session.user) return res.status(401).send({message: "You must be logged in to do that"})
+    const tracks = await trackRepo.find({
+        relations: ['artists', 'album'],
+        where: {
+            owner: {
+                id: req.session.user.id
+            }
+        }
+    })
     console.log(tracks)
     return res.send(tracks)
 })
@@ -46,6 +54,7 @@ router.post("/", async function (req: Request, res: Response) {
     if (!req.body.path) return res.status(400).send({message: "Path to track required"})
     if (!req.session.user) return res.status(401).send({message: "You must be logged in to do this"})
     
+    const newTracks = []
 
     var stats: Stats
     //Find file
@@ -154,8 +163,10 @@ router.post("/", async function (req: Request, res: Response) {
         newTrack.title = title
 
         await trackRepo.save(newTrack)
+
+        newTracks.push(newTrack)
     }
 
-    return res.send({})
+    return res.send(newTracks)
 })
 export default router

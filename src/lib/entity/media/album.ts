@@ -16,7 +16,7 @@ export class Album {
     @Column({
         nullable: true
     })
-    public albumArtist?: string
+    public albumArtist?: string //TODO: insert unknown artist
 
     @OneToMany(_type => Track, (track) => track.album, {
         nullable: true
@@ -29,5 +29,14 @@ export class Album {
         if (albumArtist) output.albumArtist = albumArtist
 
         return output
+    }
+
+    public toJSON() {
+        return {
+            id: this.id,
+            title: this.title,
+            artist: this.albumArtist,
+            tracks: this.tracks
+        }
     }
 }

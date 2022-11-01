@@ -25,4 +25,12 @@ export class Artist {
         output.name = name
         return output
     }
+
+    public toJSON() {
+        return {
+            id: this.id,
+            name: this.friendlyName,
+            tracks: this.tracks
+        }
+    }
 }

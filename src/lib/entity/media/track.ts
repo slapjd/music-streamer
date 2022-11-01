@@ -46,7 +46,6 @@ export class Track {
 
     @ManyToMany(_type => Artist, (artist) => artist.tracks, {
         nullable: true,
-        eager: true
     })
     @JoinTable()
     public artists?: Relation<Artist[]>
@@ -58,7 +57,6 @@ export class Track {
 
     //All tracks need a user that uploaded them
     @ManyToOne(_type => User, (user) => user.ownedTracks, {
-        eager: true
     })
     public owner!: Relation<User> //Original reason I made types Relations. Shit broke when I didn't
 
@@ -66,8 +64,10 @@ export class Track {
     @Column()
     public filename!: string
 
+    //Puts everything into a neat little regular JS object for transport
     public toJSON() {
         return {
+            id: this.id,
             title: this.title,
             artist: this.displayArtist,
             artists: this.artists,
