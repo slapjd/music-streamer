@@ -14,6 +14,9 @@ declare module 'express-session' {
     }
 }
 
+//DEBUG
+console.log("MARIADB_USER: " + process.env['MARIADB_USER'])
+
 //Fuck singletons and shit just do what typeorm bloody recommends
 mainDataSource
     .initialize()
@@ -36,7 +39,6 @@ app.use('/users', usersRouter)
 app.use('/auth', authRouter)
 app.use('/media', mediaRouter)
 
-//TODO: set this via .env (docker)
 const port: Number = Number(process.env['PORT']) || 3000;
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);

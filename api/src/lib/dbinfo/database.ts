@@ -6,8 +6,11 @@ import { Track } from "../entity/media/track.js";
 import { User } from "../entity/user/user.js";
 
 export const mainDataSource = new DataSource({
-    type: 'sqlite',
-    database: ":memory:",
+    type: 'mariadb',
+    host: 'mariadb',
+    username: process.env['MARIADB_USER'],
+    password: process.env['MARIADB_PASSWORD'],
+    database: 'musicstreamer',
     synchronize: true,
     logging: false,
     entities: [Session, Album, Artist, Track, User]
