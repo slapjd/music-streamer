@@ -53,7 +53,7 @@ router.get("/", async function (req: Request, res: Response) {
 //TODO: AUTHENTICATE WITH ADMIN BECAUSE THIS IS VERY DANGEROUS AND FOR TESTING ONLY
 router.delete("/", async function (_req: Request, res: Response) {
     try {
-        await fs.rm('/usr/share/nginx/media', {recursive: true})
+        await fs.rm('/usr/share/nginx/media/*', {recursive: true})
     } catch (error) {
         //Folder doesn't exist, so do nothing lmao
     }
@@ -64,22 +64,32 @@ router.delete("/", async function (_req: Request, res: Response) {
 
 //OK here's where the bastard importing lives and where we get to be sad
 router.post("/", async function (req: Request, res: Response) {
-    if (!req.body.path) return res.status(400).send({message: "Path to track required"})
     if (!req.session.user) return res.status(401).send({message: "You must be logged in to do this"})
+
+    var path = process.env['VIRTUAL_MUSIC_FOLDER']
+    if (!path) {
+        console.warn("VIRTUAL MUSIC FOLDER NOT CONFIGURED! USING DEFAULT (/usr/share/musicstreamer/media/")
+        path = '/usr/share/musicstreamer/media/'
+    }
+    var nginx_path = process.env['VIRTUAL_NGINX_FOLDER']
+    if (!nginx_path) {
+        console.warn("VIRTUAL NGINX FOLDER NOT CONFIGURED! USING DEFAULT (/usr/share/nginx/)")
+        path = '/usr/share/nginx/'
+    }
     
     const newTracks = []
 
     var stats: Stats
     //Find file
     try {
-        stats = await fs.stat(req.body.path)
+        stats = await fs.stat(path)
     } catch (error) {
-        return res.status(404).send({message: "File not found on server"})
+        return res.status(500).send({message: "Media folder not mounted!"})
     }
     
     var files: string[]
     if (stats.isDirectory()) {
-        const dir = await fs.opendir(req.body.path)
+        const dir = await fs.opendir(path)
         files = await findFiles(dir)
         await dir.close()
     } else {
@@ -111,7 +121,7 @@ router.post("/", async function (req: Request, res: Response) {
         newTrack.filename = path
         newTrack.artists = []
 
-        console.log(tag.native)
+        //console.log(tag.native)
         if (tag.native['vorbis']) {
             //TODO: similar logic for MP3 and other tag types
             const test = tag.native['vorbis'].filter((tag) => {
@@ -174,6 +184,23 @@ router.post("/", async function (req: Request, res: Response) {
         newTrack.title = title
 
         await trackRepo.save(newTrack)
+
+        //I've set this to use junctions on windows but god help you if you try to run this on windows
+        try {
+            try {
+                await fs.stat(nginx_path + 'media/')
+            } catch (error) {
+                await fs.mkdir(nginx_path + 'media/')
+            }
+
+            await fs.symlink(path, nginx_path + 'media/' + newTrack.id.toString(), 'junction')
+        } catch (error) {
+            //FUCKING PANIC AND DELETE THE FUCKED ENTRY
+            await trackRepo.delete({
+                id: newTrack.id
+            })
+            throw error
+        }
 
         newTracks.push(newTrack)
     }

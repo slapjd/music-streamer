@@ -12,6 +12,8 @@ services:
     volumes:
       - ./api:/usr/src/app
       - ./database:/var/lib/mysql
+      - ${MUSIC_FOLDER}:${VIRTUAL_MUSIC_FOLDER}
+      - ${NGINX_FOLDER}:${VIRTUAL_NGINX_FOLDER}:rw
     env_file:
       - .env
     restart: unless-stopped
