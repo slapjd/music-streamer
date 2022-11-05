@@ -65,6 +65,7 @@ export class Track {
     public filename!: string
 
     //Puts everything into a neat little regular JS object for transport
+    //I'm gonna just sorta hope that if i don't load things it doesn't pack them :shrug:
     public toJSON() {
         return {
             id: this.id,
