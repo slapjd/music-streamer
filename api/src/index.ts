@@ -14,9 +14,6 @@ declare module 'express-session' {
     }
 }
 
-//DEBUG
-console.log("MARIADB_USER: " + process.env['MARIADB_USER'])
-
 //Fuck singletons and shit just do what typeorm bloody recommends
 mainDataSource
     .initialize()

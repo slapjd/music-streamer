@@ -5,15 +5,20 @@ import { User } from './lib/entity/user/user.js'
 const router: express.Router = express.Router()
 
 router.get("/", async function (req: Request, res: Response) {
+    if (req.session.user) { return res.status(400).send({message: "You are already logged in!"}) }
     if (!req.body['username'] || !req.body['password']) { return res.status(400).send({message: "Username & password required"}) }
 
     //Because password_hash is protected we end up with this mess
-    const user = await mainDataSource
-    .getRepository(User)
-    .createQueryBuilder()
-    .addSelect('"User"."password_hash"', 'User_password_hash') //Magic line that makes password_hash appear
-    .where("user.username = :username", { username: req.body['username'] })
-    .getOne()
+    const user = await mainDataSource.getRepository(User).findOne({
+        select: {
+            id: true,
+            username: true,
+            password_hash: true
+        },
+        where: {
+            username: req.body['username']
+        }
+    })
 
     if (user === null) return res.status(401).send({message: "Incorrect username or password"})
     if (!user.compare_password_hash(req.body['password'])) {
@@ -24,6 +29,18 @@ router.get("/", async function (req: Request, res: Response) {
     req.session.user = user
 
     return res.send({message: "Success!"})
+})
+
+//Translates to logout basically
+router.delete("/", (req: Request, res: Response) => {
+    //I don't think this is possible but it's here just in case
+    //(session is automatically created on any request that comes in so :shrug:)
+    if (!req.session) res.status(400).send({message: "You don't have a session with us!"})
+    else {
+        req.session.destroy(_ => {
+            res.send({message: "Success!"})
+        })
+    }
 })
 
 // router.get("/test", async function (req: Request, res: Response) {

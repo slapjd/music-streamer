@@ -18,8 +18,11 @@ export class User {
     @Column()
     public username!: string
 
+    //DO NOT USE PLS UNLESS YOU KNOW WHAT UR DOING,
+    //Needs to be public so i can retrieve it when required
+    //Not selected by default to help prevent accidental usage
     @Column({select: false})
-    protected password_hash!: string
+    public password_hash!: string
 
     @OneToMany(_type => Session, (session) => session.user)
     public loginSessions!: Relation<Session[]>

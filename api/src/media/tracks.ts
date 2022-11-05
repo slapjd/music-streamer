@@ -49,6 +49,19 @@ router.get("/", async function (req: Request, res: Response) {
     return res.send(tracks)
 })
 
+//VERY DANGEROUS
+//TODO: AUTHENTICATE WITH ADMIN BECAUSE THIS IS VERY DANGEROUS AND FOR TESTING ONLY
+router.delete("/", async function (_req: Request, res: Response) {
+    try {
+        await fs.rm('/usr/share/nginx/media', {recursive: true})
+    } catch (error) {
+        //Folder doesn't exist, so do nothing lmao
+    }
+    await trackRepo.delete({})
+    console.log("SYMLINKS DELETED, DELETE ENTRIES IN MARIADB SHELL")
+    return res.send({message: "Success!"})
+})
+
 //OK here's where the bastard importing lives and where we get to be sad
 router.post("/", async function (req: Request, res: Response) {
     if (!req.body.path) return res.status(400).send({message: "Path to track required"})
@@ -87,8 +100,6 @@ router.post("/", async function (req: Request, res: Response) {
         const path = tags[i]?.path
         const tag = tags[i]?.tag
         if (!tag || !path) continue
-
-        //TODO: Create symbolic link to a specified media folder that nginx can use to serve shit
         
         const existing = await trackRepo.findOneBy({
             filename: path
