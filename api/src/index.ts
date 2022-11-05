@@ -8,6 +8,15 @@ import mediaRouter from './media/index.js'
 import { Session } from './lib/entity/auth/session.js';
 import type { User } from './lib/entity/user/user.js';
 
+if (!process.env['VIRTUAL_MUSIC_FOLDER']) {
+    console.warn("VIRTUAL MUSIC FOLDER NOT CONFIGURED! USING DEFAULT (/usr/share/musicstreamer/media/")
+    process.env['VIRTUAL_MUSIC_FOLDER'] = '/usr/share/musicstreamer/media/'
+} else if (!process.env['VIRTUAL_MUSIC_FOLDER'].endsWith('/') && !process.env['VIRTUAL_MUSIC_FOLDER'].endsWith('\\')) process.env['VIRTUAL_MUSIC_FOLDER'] += '/' //Windows nowadays does accept forward slashes in paths
+if (!process.env['VIRTUAL_NGINX_FOLDER']) {
+    console.warn("VIRTUAL NGINX FOLDER NOT CONFIGURED! USING DEFAULT (/usr/share/nginx/)")
+    process.env['VIRTUAL_NGINX_FOLDER'] = '/usr/share/nginx/'
+}
+
 declare module 'express-session' {
     interface SessionData {
         user: User | undefined
@@ -38,5 +47,5 @@ app.use('/media', mediaRouter)
 
 const port: Number = Number(process.env['PORT']) || 3000;
 app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+  console.log(`Server running on port ${port}`);
 })

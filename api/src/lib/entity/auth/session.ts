@@ -18,7 +18,9 @@ export class Session implements ISession {
     @PrimaryColumn("varchar", { length: 255 })
     public id!: string
 
-    @ManyToOne(_type => User, (user) => user.loginSessions, {nullable: true})
+    @ManyToOne(_type => User, (user) => user.loginSessions, {
+        nullable: true,
+    })
     public user: Relation<User | undefined>
 
     @Column("text")

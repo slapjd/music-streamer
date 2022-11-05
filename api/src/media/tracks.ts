@@ -57,25 +57,36 @@ router.delete("/", async function (_req: Request, res: Response) {
     } catch (error) {
         //Folder doesn't exist, so do nothing lmao
     }
-    await trackRepo.delete({})
-    console.log("SYMLINKS DELETED, DELETE ENTRIES IN MARIADB SHELL")
-    return res.send({message: "Success!"})
+    const results = await trackRepo.delete({})
+    return res.send(results)
+})
+
+router.delete("/:id", async function (req: Request, res: Response) {
+    if (!req.params['id']) return res.status(500).send({message: "PANIC"})
+
+    var path = process.env['VIRTUAL_NGINX_FOLDER']
+    if (!path) throw "VIRUAL_NGINX_FOLDER UNSET SOMEHOW"
+    path += 'media/' + req.params['id']?.toString()
+    try {
+        await fs.rm(path)
+    } catch (error) {
+        //Folder doesn't exist, so do nothing lmao
+    }
+    const results = await trackRepo.delete(+req.params['id'])
+    return res.send(results)
 })
 
 //OK here's where the bastard importing lives and where we get to be sad
+//TODO: upload from client?
 router.post("/", async function (req: Request, res: Response) {
     if (!req.session.user) return res.status(401).send({message: "You must be logged in to do this"})
 
     var path = process.env['VIRTUAL_MUSIC_FOLDER']
-    if (!path) {
-        console.warn("VIRTUAL MUSIC FOLDER NOT CONFIGURED! USING DEFAULT (/usr/share/musicstreamer/media/")
-        path = '/usr/share/musicstreamer/media/'
-    }
+    if (!path) throw "VIRTUAL_MUSIC_FOLDER UNSET SOMEHOW"
+    path += req.session.user.username + '/'
+
     var nginx_path = process.env['VIRTUAL_NGINX_FOLDER']
-    if (!nginx_path) {
-        console.warn("VIRTUAL NGINX FOLDER NOT CONFIGURED! USING DEFAULT (/usr/share/nginx/)")
-        path = '/usr/share/nginx/'
-    }
+    if (!nginx_path) throw "VIRTUAL_NGINX_FOLDER UNSET SOMEHOW"
     
     const newTracks = []
 
@@ -84,7 +95,7 @@ router.post("/", async function (req: Request, res: Response) {
     try {
         stats = await fs.stat(path)
     } catch (error) {
-        return res.status(500).send({message: "Media folder not mounted!"})
+        return res.status(500).send({message: "Media folder not mounted correctly!"})
     }
     
     var files: string[]
@@ -112,13 +123,13 @@ router.post("/", async function (req: Request, res: Response) {
         if (!tag || !path) continue
         
         const existing = await trackRepo.findOneBy({
-            filename: path
+            filepath: path
         })
         if (existing !== null) continue //Track under same file path already added, no need to import it again.
 
         const newTrack = new Track()
         newTrack.owner = req.session.user
-        newTrack.filename = path
+        newTrack.filepath = path
         newTrack.artists = []
 
         //console.log(tag.native)
@@ -171,37 +182,16 @@ router.post("/", async function (req: Request, res: Response) {
             title: albumName,
             albumArtist: albumArtist
         })
-
         if (album === null) {
             album = Album.fromData(tag.common.album, tag.common.albumartist)
             await albumRepo.save(album)
         }
-
         newTrack.album = album
 
         var title: string | undefined = tag.common.title
-        
         newTrack.title = title
 
         await trackRepo.save(newTrack)
-
-        //I've set this to use junctions on windows but god help you if you try to run this on windows
-        try {
-            try {
-                await fs.stat(nginx_path + 'media/')
-            } catch (error) {
-                await fs.mkdir(nginx_path + 'media/')
-            }
-
-            await fs.symlink(path, nginx_path + 'media/' + newTrack.id.toString(), 'junction')
-        } catch (error) {
-            //FUCKING PANIC AND DELETE THE FUCKED ENTRY
-            await trackRepo.delete({
-                id: newTrack.id
-            })
-            throw error
-        }
-
         newTracks.push(newTrack)
     }
 

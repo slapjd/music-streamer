@@ -61,14 +61,15 @@ router.put("/:id", async function (req: Request, res: Response) {
     return res.send(results)
 })
 
-router.delete("/:id", async function (req: Request, res: Response) {
+router.delete("/:id", async function (req: Request, res: Response): Promise<Response | void> {
     if (!req.params['id']) return res.status(500).send({message: "USER ID EMPTY BUT ROUTED TO GET /:id"})
     if (!req.session.user) return res.status(401).send({message: "Login required"})
     if (req.session.user.id != +req.params['id']) return res.status(403).send({message: "Not authorized to do this"}) //TODO: allow admins
 
-    //Checks passed, go ahead with the deletion
     const results = await mainDataSource.getRepository(User).delete(+req.params['id'])
-    return res.send(results)
+    req.session.destroy(_ => {
+        res.send(results)
+    })
 })
 
 export default router

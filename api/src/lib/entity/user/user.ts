@@ -24,8 +24,10 @@ export class User {
     @Column({select: false})
     public password_hash!: string
 
-    @OneToMany(_type => Session, (session) => session.user)
-    public loginSessions!: Relation<Session[]>
+    @OneToMany(_type => Session, (session) => session.user, {
+        cascade: ['remove']
+    })
+    public loginSessions!: Relation<Session>[]
 
     protected set password(value: string) {
         this.password_hash = libsodium.crypto_pwhash_str(value, libsodium.crypto_pwhash_OPSLIMIT_INTERACTIVE, libsodium.crypto_pwhash_MEMLIMIT_INTERACTIVE)
@@ -36,6 +38,7 @@ export class User {
     }
 
     @OneToMany(_type => Track, (track) => track.owner, {
+        cascade: ['remove']
     })
     public ownedTracks!: Relation<Track[]>
 

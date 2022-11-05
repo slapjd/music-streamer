@@ -19,7 +19,8 @@ export class Album {
     public albumArtist?: string //TODO: insert unknown artist
 
     @OneToMany(_type => Track, (track) => track.album, {
-        nullable: true
+        nullable: true,
+        cascade: ["remove"]
     })
     public tracks?: Relation<Track[]>
 

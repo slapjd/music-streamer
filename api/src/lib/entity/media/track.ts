@@ -1,7 +1,9 @@
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, Relation } from "typeorm";
+import { AfterRemove, BeforeInsert, BeforeRemove, Column, Entity, IsNull, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, Relation } from "typeorm";
 import { User } from "../user/user.js";
 import { Album } from "./album.js";
 import { Artist } from "./artist.js";
+import fs from 'fs/promises'
+import { mainDataSource } from "../../dbinfo/database.js";
 
 @Entity()
 export class Track {
@@ -56,13 +58,48 @@ export class Track {
     public album?: Relation<Album>
 
     //All tracks need a user that uploaded them
-    @ManyToOne(_type => User, (user) => user.ownedTracks, {
-    })
+    @ManyToOne(_type => User, (user) => user.ownedTracks, {})
     public owner!: Relation<User> //Original reason I made types Relations. Shit broke when I didn't
 
     //I sincerely hope noone ever has a temptation to make this optional
     @Column()
-    public filename!: string
+    public filepath!: string
+
+    @BeforeInsert()
+    async createSymlinkForNginx() {
+        var nginx_path = process.env['VIRTUAL_NGINX_FOLDER']
+        if (!nginx_path) throw "VIRTUAL_NGINX_FOLDER UNSET SOMEHOW"
+        nginx_path += 'media/'
+
+        //I've set this to use junctions on windows but god help you if you try to run this on windows
+        try {
+            await fs.stat(nginx_path + 'media/')
+        } catch (error) {
+            await fs.mkdir(nginx_path + 'media/')
+        }
+
+        await fs.symlink(this.filepath, nginx_path + this.id.toString(), 'junction')
+    }
+
+    @BeforeRemove()
+    async deleteSymlinkForNginx() {
+        var nginx_path = process.env['VIRTUAL_NGINX_FOLDER']
+        if (!nginx_path) throw "VIRTUAL_NGINX_FOLDER UNSET SOMEHOW"
+        nginx_path += 'media/'
+
+        try {
+            await fs.rm(nginx_path + this.id.toString())
+        } catch (error) {
+            //File didn't exist, do nothing
+        }
+    }
+
+    @AfterRemove()
+    async deleteEmptyArtists() {
+        await mainDataSource.getRepository(Artist).delete({
+            tracks: IsNull()
+        })
+    }
 
     //Puts everything into a neat little regular JS object for transport
     //I'm gonna just sorta hope that if i don't load things it doesn't pack them :shrug:
