@@ -24,9 +24,7 @@ export class RelationalStore<T extends ISession> extends Store {
             relations: relations
         }).then((sess => {
             if (sess?.cookie.expires && sess.cookie.expires.getTime() < Date.now()) {
-                this.repo.delete({
-                    id: sid
-                })
+                this.repo.remove(sess)
                 callback(null, null)
                 return
             }
@@ -48,13 +46,15 @@ export class RelationalStore<T extends ISession> extends Store {
     }
 
     destroy(sid: string, callback?: ((err?: any) => void) | undefined): void {
-        this.repo.delete({
+        this.repo.findBy({
             id: sid
-        }).then((_result) => {
-            if (callback) {
-                callback(null)
-                //TODO: check if db query failed and translate error for express-session
-            }
+        }).then(sess => {
+            this.repo.remove(sess).then((_result) => {
+                if (callback) {
+                    callback(null)
+                    //TODO: check if db query failed and translate error for express-session
+                }
+            })
         })
     }
 
@@ -71,6 +71,7 @@ export class RelationalStore<T extends ISession> extends Store {
     }
 
     override clear(callback?: ((err?: any) => void) | undefined): void {
+        //WARNING: This does not call any remove event methods so be very fucking careful
         this.repo.delete({}).then((_result) => {
             if (callback) {
                 callback(null)

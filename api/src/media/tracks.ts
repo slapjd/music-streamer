@@ -50,29 +50,25 @@ router.get("/", async function (req: Request, res: Response) {
 })
 
 //VERY DANGEROUS
-//TODO: AUTHENTICATE WITH ADMIN BECAUSE THIS IS VERY DANGEROUS AND FOR TESTING ONLY
-router.delete("/", async function (_req: Request, res: Response) {
-    try {
-        await fs.rm('/usr/share/nginx/media/*', {recursive: true})
-    } catch (error) {
-        //Folder doesn't exist, so do nothing lmao
-    }
-    const results = await trackRepo.delete({})
+router.delete("/", async function (req: Request, res: Response) {
+    const tracks = await trackRepo.findBy({
+        owner: {
+            id: req.session.user?.id
+        }
+    })
+    const results = await trackRepo.remove(tracks)
     return res.send(results)
 })
 
 router.delete("/:id", async function (req: Request, res: Response) {
     if (!req.params['id']) return res.status(500).send({message: "PANIC"})
-
-    var path = process.env['VIRTUAL_NGINX_FOLDER']
-    if (!path) throw "VIRUAL_NGINX_FOLDER UNSET SOMEHOW"
-    path += 'media/' + req.params['id']?.toString()
-    try {
-        await fs.rm(path)
-    } catch (error) {
-        //Folder doesn't exist, so do nothing lmao
-    }
-    const results = await trackRepo.delete(+req.params['id'])
+    const tracks = await trackRepo.findBy({
+        id: +req.params['id'],
+        owner: {
+            id: req.session.user?.id
+        }
+    })
+    const results = await trackRepo.remove(tracks)
     return res.send(results)
 })
 

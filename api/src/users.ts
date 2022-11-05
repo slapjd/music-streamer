@@ -66,7 +66,11 @@ router.delete("/:id", async function (req: Request, res: Response): Promise<Resp
     if (!req.session.user) return res.status(401).send({message: "Login required"})
     if (req.session.user.id != +req.params['id']) return res.status(403).send({message: "Not authorized to do this"}) //TODO: allow admins
 
-    const results = await mainDataSource.getRepository(User).delete(+req.params['id'])
+    const users = await mainDataSource.getRepository(User).findBy({
+        id: +req.params['id']
+    })
+
+    const results = await mainDataSource.getRepository(User).remove(users)
     req.session.destroy(_ => {
         res.send(results)
     })

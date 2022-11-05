@@ -13,5 +13,5 @@ export const mainDataSource = new DataSource({
     database: 'musicstreamer',
     synchronize: true,
     logging: false,
-    entities: [Session, Album, Artist, Track, User]
+    entities: [Album, Artist, Track, User, Session]
 })

@@ -19,7 +19,7 @@ export class Session implements ISession {
     public id!: string
 
     @ManyToOne(_type => User, (user) => user.loginSessions, {
-        nullable: true,
+        nullable: true
     })
     public user: Relation<User | undefined>
 

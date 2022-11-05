@@ -1,9 +1,9 @@
-import { AfterRemove, BeforeInsert, BeforeRemove, Column, Entity, IsNull, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, Relation } from "typeorm";
+import { AfterInsert, BeforeRemove, Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, Relation } from "typeorm";
 import { User } from "../user/user.js";
 import { Album } from "./album.js";
 import { Artist } from "./artist.js";
 import fs from 'fs/promises'
-import { mainDataSource } from "../../dbinfo/database.js";
+//import { mainDataSource } from "../../dbinfo/database.js";
 
 @Entity()
 export class Track {
@@ -65,7 +65,9 @@ export class Track {
     @Column()
     public filepath!: string
 
-    @BeforeInsert()
+    //If i run this before insert id doesn't exist but now if it fails the entry is still in the db
+    //So don't misconfigure ur shit kids
+    @AfterInsert()
     async createSymlinkForNginx() {
         var nginx_path = process.env['VIRTUAL_NGINX_FOLDER']
         if (!nginx_path) throw "VIRTUAL_NGINX_FOLDER UNSET SOMEHOW"
@@ -73,9 +75,9 @@ export class Track {
 
         //I've set this to use junctions on windows but god help you if you try to run this on windows
         try {
-            await fs.stat(nginx_path + 'media/')
+            await fs.stat(nginx_path)
         } catch (error) {
-            await fs.mkdir(nginx_path + 'media/')
+            await fs.mkdir(nginx_path)
         }
 
         await fs.symlink(this.filepath, nginx_path + this.id.toString(), 'junction')
@@ -87,19 +89,16 @@ export class Track {
         if (!nginx_path) throw "VIRTUAL_NGINX_FOLDER UNSET SOMEHOW"
         nginx_path += 'media/'
 
-        try {
-            await fs.rm(nginx_path + this.id.toString())
-        } catch (error) {
-            //File didn't exist, do nothing
-        }
+        await fs.rm(nginx_path + this.id.toString())
     }
 
-    @AfterRemove()
-    async deleteEmptyArtists() {
-        await mainDataSource.getRepository(Artist).delete({
-            tracks: IsNull()
-        })
-    }
+    //You can't depend on mainDataSource because mainDataSource depends on you so bad things happen mkay
+    // @AfterRemove()
+    // async deleteEmptyArtists() {
+    //     await mainDataSource.getRepository(Artist).delete({
+    //         tracks: IsNull()
+    //     })
+    // }
 
     //Puts everything into a neat little regular JS object for transport
     //I'm gonna just sorta hope that if i don't load things it doesn't pack them :shrug:
