@@ -48,6 +48,7 @@ export class Track {
 
     @ManyToMany(_type => Artist, (artist) => artist.tracks, {
         nullable: true,
+        eager: true //Because it's required for generateArtistString()
     })
     @JoinTable()
     public artists?: Relation<Artist[]>
@@ -108,7 +109,6 @@ export class Track {
             id: this.id,
             title: this.title,
             artist: this.displayArtist,
-            artists: this.artists,
             album: this.album,
             owner: this.owner
         }
