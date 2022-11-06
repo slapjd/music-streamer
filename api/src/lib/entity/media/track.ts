@@ -93,6 +93,7 @@ export class Track {
     }
 
     //You can't depend on mainDataSource because mainDataSource depends on you so bad things happen mkay
+    //TODO: Make this work without cyclic dependencies somehow?
     // @AfterRemove()
     // async deleteEmptyArtists() {
     //     await mainDataSource.getRepository(Artist).delete({
