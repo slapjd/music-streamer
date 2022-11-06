@@ -1,0 +1,15 @@
+server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+
+        server_name _;
+
+        location / {
+                proxy_pass http://api:3000/;
+        }
+
+        location /_media/ {
+                internal; # This tells nginx it's not accessible from the outside
+                alias ${VIRTUAL_NGINX_FOLDER}/media/;
+        }
+}

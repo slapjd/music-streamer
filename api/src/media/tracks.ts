@@ -35,7 +35,7 @@ async function findFiles(dir: Dir, allowSymlink: boolean = false): Promise<strin
     return output
 }
 
-//KINDA SLOW: return *all* tracks
+//KINDA DANGEROUS (SLOW): return *all* tracks owned by logged in user
 router.get("/", async function (req: Request, res: Response) {
     if (!req.session.user) return res.status(401).send({message: "You must be logged in to do that"})
     const tracks = await trackRepo.find({
@@ -49,9 +49,26 @@ router.get("/", async function (req: Request, res: Response) {
     return res.send(tracks)
 })
 
+//Gets info on single track
+router.get("/:id", async function (req: Request, res: Response) {
+    if (!req.session.user) return res.status(401).send({message: "You must be logged in to do that"})
+    if (!req.params['id']) return res.status(500).send({message: "PANIC"})
+    const track = await trackRepo.findOne({
+        relations: ['artists', 'album', 'owner'],
+        where: {
+            id: +req.params['id']
+        }
+    })
+    if (!track) return res.status(404).send({message: "This track does not exist"})
+    if (track.owner.id != req.session.user.id) return res.status(403).send({message: "You do not own this track"})
+    delete (track as any).owner //Required for authentication but not relevant to user TODO: maybe remove this from json
+
+    return res.send(track)
+})
+
 //TODO: maybe move this somewhere else
 //Authenticates then returns track file via accelerated redirect
-router.get("/:id", async function (req: Request, res:Response) {
+router.get("/:id/file", async function (req: Request, res:Response) {
     if (!req.session.user) return res.status(401).send({message: "You must be logged in to do that"})
     if (!req.params['id']) return res.status(500).send({message: "PANIC"})
     const track = await trackRepo.findOne({
@@ -64,7 +81,7 @@ router.get("/:id", async function (req: Request, res:Response) {
     if (!track) return res.status(404).send({message: "Track not found"})
     if (track.owner.id != req.session.user.id) return res.status(403).send({message: "This track is not owned by you"})
 
-    return res.setHeader('X-Accel-Redirect', '/media/' + req.params['id']).send()
+    return res.setHeader('X-Accel-Redirect', '/_media/' + req.params['id']).send()
 })
 
 //VERY DANGEROUS: DELETES ALL TRACKS OWNED BY USER
