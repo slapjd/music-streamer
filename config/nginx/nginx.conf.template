@@ -5,6 +5,10 @@ server {
         server_name _;
 
         location / {
+                proxy_pass http://vite:5173/;
+        }
+
+        location /api/ {
                 proxy_pass http://api:3000/;
         }
 

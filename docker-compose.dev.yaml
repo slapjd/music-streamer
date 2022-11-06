@@ -17,6 +17,13 @@ services:
     env_file:
       - .env
     restart: unless-stopped
+  vite:
+    image: slapjd/musicstreamer-client-dev
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./client:/usr/src/app
   mariadb:
     image: mariadb
     environment:
@@ -29,7 +36,7 @@ services:
   nginx:
     image: nginx
     ports:
-      - 3000:80
+      - 9000:80
     env_file:
       - .env
     volumes:

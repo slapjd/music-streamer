@@ -4,7 +4,7 @@ import { User } from './lib/entity/user/user.js'
 
 const router: express.Router = express.Router()
 
-router.get("/", async function (req: Request, res: Response) {
+router.post("/", async function (req: Request, res: Response) {
     if (req.session.user) { return res.status(400).send({message: "You are already logged in!"}) }
     if (!req.body['username'] || !req.body['password']) { return res.status(400).send({message: "Username & password required"}) }
 
