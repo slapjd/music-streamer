@@ -17,6 +17,8 @@ if (!process.env['VIRTUAL_NGINX_FOLDER']) {
     process.env['VIRTUAL_NGINX_FOLDER'] = '/usr/share/nginx/'
 }
 
+if (!process.env['SESSION_SECRET']) throw "SESSION_SECRET MUST BE SET"
+
 declare module 'express-session' {
     interface SessionData {
         user: User | undefined
@@ -38,8 +40,8 @@ app.use(express.json())
 app.use(session({
     resave: false,
     saveUninitialized: false,
-    store: new RelationalStore(mainDataSource.getRepository(Session)), //It complains unless i explicitly tell it this
-    secret: "keyboard cat",
+    store: new RelationalStore(mainDataSource.getRepository(Session)),
+    secret: process.env['SESSION_SECRET'],
 }))
 app.use('/users', usersRouter)
 app.use('/auth', authRouter)
