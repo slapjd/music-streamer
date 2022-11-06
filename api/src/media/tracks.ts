@@ -80,9 +80,6 @@ router.post("/", async function (req: Request, res: Response) {
     var path = process.env['VIRTUAL_MUSIC_FOLDER']
     if (!path) throw "VIRTUAL_MUSIC_FOLDER UNSET SOMEHOW"
     path += req.session.user.username + '/'
-
-    var nginx_path = process.env['VIRTUAL_NGINX_FOLDER']
-    if (!nginx_path) throw "VIRTUAL_NGINX_FOLDER UNSET SOMEHOW"
     
     const newTracks = []
 
