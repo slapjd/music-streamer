@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 
 import './assets/layout.css'
+import './assets/aesthetics.css'
 
 createApp(App).mount('#app')
 
