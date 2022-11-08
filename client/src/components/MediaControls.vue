@@ -3,17 +3,21 @@ import SpeakerIcon from './icons/IconSpeaker.vue'
 import { ref } from 'vue'
 
 const player = new Audio()
-player.src = "/api/media/tracks/1/file"
-
+const id = ref(1)
 const title = ref(null)
 const artist = ref(null)
 
-fetch('/api/media/tracks/1').then(res => {
-    res.json().then(json => {
-        title.value = json.title
-        artist.value = json.artist
-    })
-})
+function changeTrack(id: number) {
+    player.src = '/api/media/tracks/' + id.toString() + '/file'
+    fetch('/api/media/tracks/' + id.toString()).then(res => {
+        res.json().then(json => {
+            title.value = json.title
+            artist.value = json.artist
+        })
+    })   
+}
+
+changeTrack(id.value)
 
 function play() {
     if (player.paused) player.play()
@@ -33,9 +37,9 @@ function play() {
         <div class="vbox margin">
             <input type="range" id="seekBar"/>
             <div class="hbox" id="playback-buttons">
-                <button>PREV</button>
+                <button @click="changeTrack(--id)">PREV</button>
                 <button @click="play">PLAY</button>
-                <button>NEXT</button>
+                <button @click="changeTrack(++id)">NEXT</button>
             </div>
         </div>
         <div class="hbox-reverse margin">
