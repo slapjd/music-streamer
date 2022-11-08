@@ -84,6 +84,30 @@ router.get("/:id/file", async function (req: Request, res:Response) {
     return res.setHeader('X-Accel-Redirect', '/_media/' + req.params['id']).send()
 })
 
+router.get("/:id/art", async function (req: Request, res: Response) {
+    if (!req.session.user) return res.status(401).send({message: "You must be logged in to do that"})
+    if (!req.params['id']) return res.status(500).send({message: "PANIC"})
+
+    var track = null
+    try {
+        track = await trackRepo.findOne({
+            relations: ['owner'],
+            where: {
+                id: +req.params['id']
+            }
+        })
+    } catch (error) {
+        return res.status(400).send("Your art request sucks and you should feel bad")
+    }
+    
+    if (!track) return res.status(404).send({message: "Track not found"})
+    if (track.owner.id != req.session.user.id) return res.status(403).send({message: "This track is not owned by you"})
+
+    const tag = await parseFile(track.filepath)
+    if (!tag.common.picture || !tag.common.picture[0]) return res.status(404).send({message: "No art found"})
+    return res.send(tag.common.picture[0].data)
+})
+
 //VERY DANGEROUS: DELETES ALL TRACKS OWNED BY USER
 router.delete("/", async function (req: Request, res: Response) {
     const tracks = await trackRepo.findBy({

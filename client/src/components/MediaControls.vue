@@ -7,8 +7,8 @@ const id = ref(1)
 const track = ref({} as any)
 
 function changeTrack(id: number) {
-    player.src = '/api/media/tracks/' + id.toString() + '/file'
-    fetch('/api/media/tracks/' + id.toString()).then(res => {
+    player.src = '/api/media/tracks/' + id + '/file'
+    fetch('/api/media/tracks/' + id).then(res => {
         res.json().then(json => {
             track.value = json
         })
@@ -26,7 +26,7 @@ function play() {
 <template>
     <div class="audio-controls">
         <div class="hbox margin">
-            <img id="album-art" src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F2%2F27%2FSquare%252C_Inc_-_Square_Logo.jpg&f=1&nofb=1&ipt=9f4f62c2b481e3e7281da4b9233731a34f38b577b6df3cea1f2d3ebbe0e9e2db&ipo=images" alt="Album Art">
+            <img id="album-art" v-bind:src="'/api/media/tracks/' + id + '/art'" alt="Album Art">
             <div class="vbox" id="track-info">
                 <div style="font-weight: bold">{{track.title}}</div>
                 <div>{{track.artist}}</div>
