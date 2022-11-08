@@ -37,6 +37,8 @@ services:
     image: nginx
     ports:
       - 9000:80
+    environment:
+      DOLLAR: $$
     env_file:
       - .env
     volumes:
