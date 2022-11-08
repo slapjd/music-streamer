@@ -1,0 +1,23 @@
+.margin > * {
+    margin: 5px;
+}
+
+.vbox {
+    display: flex;
+    flex-direction: column;
+}
+
+.vbox-reverse {
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.hbox {
+    display: flex;
+    flex-direction: row;
+}
+
+.hbox-reverse {
+    display: flex;
+    flex-direction: row-reverse;
+}
