@@ -31,6 +31,9 @@ export async function logout() {
 }
 
 window.onload = function() {
-    document.getElementById("loginButton").onclick = login
-    document.getElementById("logoutButton").onclick = logout
+    var buttonLogin = document.getElementById("buttonLogin")
+    if (buttonLogin) buttonLogin.onclick = login
+
+    var buttonLogout = document.getElementById("buttonLogout")
+    if (buttonLogout) buttonLogout.onclick = logout
 }

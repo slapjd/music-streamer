@@ -1,21 +1,40 @@
 <script setup lang="ts">
 import SpeakerIcon from './icons/IconSpeaker.vue'
+import { ref } from 'vue'
+
+const player = new Audio()
+player.src = "/api/media/tracks/1/file"
+
+const title = ref(null)
+const artist = ref(null)
+
+fetch('/api/media/tracks/1').then(res => {
+    res.json().then(json => {
+        title.value = json.title
+        artist.value = json.artist
+    })
+})
+
+function play() {
+    if (player.paused) player.play()
+    else player.pause()
+}
 </script>
 
 <template>
     <div class="audio-controls">
-        <div class="hbox">
+        <div class="hbox margin">
             <img id="album-art" src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F2%2F27%2FSquare%252C_Inc_-_Square_Logo.jpg&f=1&nofb=1&ipt=9f4f62c2b481e3e7281da4b9233731a34f38b577b6df3cea1f2d3ebbe0e9e2db&ipo=images" alt="Album Art">
             <div class="vbox" id="track-info">
-                <div id="title-text" style="font-weight: bold">TRACK_TITLE</div>
-                <div id="artist-text">ARTIST_NAME</div>
+                <div style="font-weight: bold">{{title}}</div>
+                <div>{{artist}}</div>
             </div>
         </div>
         <div class="vbox margin">
             <input type="range" id="seekBar"/>
             <div class="hbox" id="playback-buttons">
                 <button>PREV</button>
-                <button>PLAY</button>
+                <button @click="play">PLAY</button>
                 <button>NEXT</button>
             </div>
         </div>
