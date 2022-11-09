@@ -1,6 +1,8 @@
+import { trackSlotScopes } from "@vue/compiler-core"
+
 //Helper queue for gapless playback
 export class MusicQueue {    
-    private currentTrack: any
+    private currentTrack: any = {}
     private playbackIndex: number = 0
 
     private shuffleSeed = new Date().getTime()
@@ -61,10 +63,13 @@ export class MusicQueue {
 
     private chooseShuffle() {
         //Prevent the same track appearing twice at the very least (when queue ends)
-        if (this.availableShuffleTracks.length === 0) this.availableShuffleTracks = this.trackList.filter(track => track.id === this.currentTrack.id)
-
-        this.currentTrack = this.availableShuffleTracks[this.sfc32(this.cyrb128((this.shuffleSeed++).toString())) % this.availableShuffleTracks.length] //Select random track
-        this.availableShuffleTracks = this.availableShuffleTracks.filter(track => track.id === this.currentTrack.id) //Remove track from pool
+        if (this.availableShuffleTracks.length === 0) {
+            if (this.currentTrack === undefined) this.availableShuffleTracks = this.trackList
+            else this.availableShuffleTracks = this.trackList.filter(track => !(track.id === this.currentTrack.id))
+        }
+        
+        this.currentTrack = this.availableShuffleTracks[Math.floor(this.sfc32(this.cyrb128((this.shuffleSeed++).toString())) * this.availableShuffleTracks.length)] //Select random track
+        this.availableShuffleTracks = this.availableShuffleTracks.filter(track => !(track.id === this.currentTrack.id)) //Remove track from pool
         this.playbackIndex = this.trackList.findIndex(track => track.id === this.currentTrack.id) //Set correct position of queue in case shuffle is disabled
     }
 
@@ -90,6 +95,8 @@ export class MusicQueue {
             this.currentTrack = this.trackList[this.playbackIndex]
             this.availableShuffleTracks = [] //Shuffle disabled and we've actually started playing a track, reset the shuffle exclusions
         }
+
+        return this.currentTrack
     }
 
     public previous() {
@@ -105,6 +112,8 @@ export class MusicQueue {
             this.currentTrack = this.trackList[this.playbackIndex]
             this.availableShuffleTracks = [] //Shuffle disabled and we've actually started playing a track, reset the shuffle exclusions
         }
+
+        return this.currentTrack
     }
 
     public add(track: any) {
@@ -116,8 +125,8 @@ export class MusicQueue {
     public remove(track: any) {
         let i = this.trackList.findIndex(existing_track => existing_track.id === track.id)
         if (this.playbackIndex > i) this.playbackIndex-- //Playback position needs moving because the thing it's referencing has moved backwards
-        this.trackList = this.trackList.filter(existing_track => existing_track.id === track.id)
-        this.availableShuffleTracks = this.availableShuffleTracks.filter(existing_track => existing_track.id === track.id)
+        this.trackList = this.trackList.filter(existing_track => !(existing_track.id === track.id))
+        this.availableShuffleTracks = this.availableShuffleTracks.filter(existing_track => !(existing_track.id === track.id))
         //TODO: removing current track from queue what do?
     }
 }

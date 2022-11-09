@@ -1,55 +1,78 @@
 <script setup lang="ts">
 import SpeakerIcon from './icons/IconSpeaker.vue'
+import { MusicQueue } from './MusicQueue'
 import { ref } from 'vue'
 
 const player = new Audio()
 const maxTime = ref(0)
 const currentTime = ref(0)
-player.ontimeupdate = _ => currentTime.value = player.currentTime
+const seekUpdates = ref(true)
+player.ontimeupdate = _ =>  {
+    if (seekUpdates.value) currentTime.value = player.currentTime
+}
 player.ondurationchange = _ => maxTime.value = player.duration
 const volume = ref(50)
 player.onvolumechange = _ => volume.value = player.volume
 
-const id = ref(1)
-const track = ref({} as any)
-function changeTrack(id: number) {
-    var forcePlay = !player.paused
-    player.src = '/api/media/tracks/' + id + '/file'
-    if (forcePlay) player.play()
-    fetch('/api/media/tracks/' + id).then(res => {
-        res.json().then(json => {
-            track.value = json
-        })
-    })
-}
-
-changeTrack(id.value)
+const currentTrack = ref({} as any)
 
 function play() {
     if (player.paused) player.play()
     else player.pause()
 }
+
+const queue = new MusicQueue()
+//TEMP SETUP FOR TESTING
+fetch('/api/media/tracks/1').then(res => res.json().then(json => {
+    queue.add(json)
+    fetch('/api/media/tracks/2').then(res => res.json().then(json => {
+        queue.add(json)
+        fetch('/api/media/tracks/3').then(res => res.json().then(json => {
+            queue.add(json)
+            fetch('/api/media/tracks/4').then(res => res.json().then(json => {
+                queue.add(json)
+                queue.shuffle = true
+                currentTrack.value = queue.next()
+            }))
+        }))
+    }))
+}))
+
+function changeTrack(track: any) {
+    let forcePlay = !player.paused
+    player.src = '/api/media/tracks/' + track.id + '/file'
+    if (forcePlay) player.play()
+    currentTrack.value = track
+}
+
+function log(...data: any[]): void {console.log(data)}
 </script>
 
 <template>
     <div class="audio-controls">
         <div class="hbox margin">
-            <img id="album-art" :src="'/api/media/tracks/' + id + '/art'" alt="Album Art">
+            <img id="album-art" :src="'/api/media/tracks/' + currentTrack.id + '/art'" alt="Album Art">
             <div class="vbox" id="track-info">
-                <div style="font-weight: bold">{{track.title}}</div>
-                <div>{{track.artist}}</div>
+                <div style="font-weight: bold">{{currentTrack.title}}</div>
+                <div>{{currentTrack.artist}}</div>
             </div>
         </div>
         <div class="vbox margin">
-            <input type="range" min="0" :max="maxTime" step=0.001 v-model="currentTime" @change="player.currentTime = currentTime"/>
+            <input type="range"
+            min="0" :max="maxTime" step=0.001 v-model="currentTime"
+            @change="player.currentTime = currentTime"
+            @mousedown="seekUpdates = false"
+            @touchstart="seekUpdates = false"
+            @mouseup="seekUpdates = true"
+            @touchend="seekUpdates = true"/>
             <div class="hbox" id="playback-buttons">
-                <button @click="changeTrack(--id)">PREV</button>
+                <button @click="changeTrack(queue.previous())">PREV</button>
                 <button @click="play">PLAY</button>
-                <button @click="changeTrack(++id)">NEXT</button>
+                <button @click="changeTrack(queue.next())">NEXT</button>
             </div>
         </div>
         <div class="hbox-reverse margin">
-            <input type="range" min="0" max="1" step="0.01" v-model="volume" @change="player.volume = volume"/>
+            <input type="range" min="0" max="1" step="0.01" v-model="volume" @input="player.volume = volume"/>
             <div class="vbox" id="volume-icon-container">
                 <SpeakerIcon id="volume-icon"/>
             </div>
