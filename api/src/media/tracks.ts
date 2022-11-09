@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express'
-import { FindOperator, IsNull } from 'typeorm'
+import { FindOperator, ILike, IsNull } from 'typeorm'
 import type { Repository } from 'typeorm'
 import { mainDataSource } from '../lib/dbinfo/database.js'
 import { Track } from '../lib/entity/media/track.js'
@@ -35,15 +35,19 @@ async function findFiles(dir: Dir, allowSymlink: boolean = false): Promise<strin
     return output
 }
 
-//KINDA DANGEROUS (SLOW): return *all* tracks owned by logged in user
+//Search endpoint
 router.get("/", async function (req: Request, res: Response) {
     if (!req.session.user) return res.status(401).send({message: "You must be logged in to do that"})
+    if (Object.keys(req.query).length < 1) return res.status(400).send({message: "You must have at least 1 search parameter"})
+    let title = undefined
+    if (req.query['title']?.toString()) title = ILike('%' + req.query['title']?.toString() + '%')
     const tracks = await trackRepo.find({
         relations: ['artists', 'album'],
         where: {
             owner: {
                 id: req.session.user.id
-            }
+            },
+            title: title
         }
     })
     return res.send(tracks)
