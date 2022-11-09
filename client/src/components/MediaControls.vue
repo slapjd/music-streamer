@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import SpeakerIcon from './icons/IconSpeaker.vue'
-import { MusicQueue } from './MusicQueue'
+import type { MusicQueue } from './MusicQueue'
 import { ref } from 'vue'
+
+const props = defineProps<{
+    queue: MusicQueue
+}>()
 
 const player = new Audio()
 const maxTime = ref(0)
@@ -14,25 +18,22 @@ player.ondurationchange = _ => maxTime.value = player.duration
 const volume = ref(50)
 player.onvolumechange = _ => volume.value = player.volume
 
-const currentTrack = ref({} as any)
-
 function play() {
     if (player.paused) player.play()
     else player.pause()
 }
 
-const queue = new MusicQueue()
 //TEMP SETUP FOR TESTING
 fetch('/api/media/tracks/1').then(res => res.json().then(json => {
-    queue.add(json)
+    props.queue.add(json)
     fetch('/api/media/tracks/2').then(res => res.json().then(json => {
-        queue.add(json)
+        props.queue.add(json)
         fetch('/api/media/tracks/3').then(res => res.json().then(json => {
-            queue.add(json)
+            props.queue.add(json)
             fetch('/api/media/tracks/4').then(res => res.json().then(json => {
-                queue.add(json)
-                queue.shuffle = true
-                currentTrack.value = queue.next()
+                props.queue.add(json)
+                props.queue.shuffle = true
+                changeTrack(props.queue.next())
             }))
         }))
     }))
@@ -42,19 +43,16 @@ function changeTrack(track: any) {
     let forcePlay = !player.paused
     player.src = '/api/media/tracks/' + track.id + '/file'
     if (forcePlay) player.play()
-    currentTrack.value = track
 }
-
-function log(...data: any[]): void {console.log(data)}
 </script>
 
 <template>
     <div class="audio-controls">
         <div class="hbox margin">
-            <img id="album-art" :src="'/api/media/tracks/' + currentTrack.id + '/art'" alt="Album Art">
+            <img id="album-art" :src="'/api/media/tracks/' + queue.currentTrack.id + '/art'" alt="Album Art">
             <div class="vbox" id="track-info">
-                <div style="font-weight: bold">{{currentTrack.title}}</div>
-                <div>{{currentTrack.artist}}</div>
+                <div style="font-weight: bold">{{queue.currentTrack.title}}</div>
+                <div>{{queue.currentTrack.artist}}</div>
             </div>
         </div>
         <div class="vbox margin">

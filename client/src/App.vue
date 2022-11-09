@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import MediaControls from './components/MediaControls.vue'
+import { MusicQueue } from './components/MusicQueue';
+
+const queue = new MusicQueue()
 </script>
 
 <template>
@@ -8,9 +11,8 @@ import MediaControls from './components/MediaControls.vue'
       <button id="buttonLogin">LOGIN</button>
       <button id="buttonLogout">LOGOUT</button>
     </div>
-
+    <MediaControls :queue="queue"/>
   </div>
-  <MediaControls/>
 </template>
 
 <style scoped>

@@ -2,7 +2,6 @@ import { trackSlotScopes } from "@vue/compiler-core"
 
 //Helper queue for gapless playback
 export class MusicQueue {    
-    private currentTrack: any = {}
     private playbackIndex: number = 0
 
     private shuffleSeed = new Date().getTime()
@@ -12,6 +11,7 @@ export class MusicQueue {
     private previousStack: any[] = []
     private nextStack: any[] = []
 
+    public currentTrack: any = {}
     public trackList: any[] = []
     public get shuffle() : boolean {
         return this._shuffle
