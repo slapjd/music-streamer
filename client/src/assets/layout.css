@@ -1,3 +1,12 @@
+html, body, body > div {
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    margin: 0;
+}
+
 .margin > * {
     margin: 5px;
 }
@@ -20,4 +29,8 @@
 .hbox-reverse {
     display: flex;
     flex-direction: row-reverse;
+}
+
+.filler {
+    flex: 1;
 }

@@ -11,7 +11,18 @@ export class MusicQueue {
     private previousStack: any[] = []
     private nextStack: any[] = []
 
-    public currentTrack: any = {}
+    private _currentTrack: any = {}
+    public get currentTrack() : any {
+        return this._currentTrack
+    }
+    public set currentTrack(v : any) {
+        this._currentTrack = v;
+        this.onchange()
+    }
+    
+    
+
+
     public trackList: any[] = []
     public get shuffle() : boolean {
         return this._shuffle
@@ -57,20 +68,28 @@ export class MusicQueue {
         return (t >>> 0) / 4294967296;
     }
 
+    private initShuffle() {
+        if (this.availableShuffleTracks.length === 0) {
+            if (this.currentTrack === undefined) this.availableShuffleTracks = this.trackList
+            else this.availableShuffleTracks = this.trackList.filter(track => !(track.id === this.currentTrack.id))
+        }
+    }
+
     private peekShuffle() {
+        this.initShuffle() //Doesn't matter if we init shuffle here because it won't init in choose if we do
         return this.availableShuffleTracks[this.sfc32(this.cyrb128(this.shuffleSeed.toString())) % this.availableShuffleTracks.length]
     }
 
     private chooseShuffle() {
         //Prevent the same track appearing twice at the very least (when queue ends)
-        if (this.availableShuffleTracks.length === 0) {
-            if (this.currentTrack === undefined) this.availableShuffleTracks = this.trackList
-            else this.availableShuffleTracks = this.trackList.filter(track => !(track.id === this.currentTrack.id))
-        }
+        this.initShuffle()
         
         this.currentTrack = this.availableShuffleTracks[Math.floor(this.sfc32(this.cyrb128((this.shuffleSeed++).toString())) * this.availableShuffleTracks.length)] //Select random track
         this.availableShuffleTracks = this.availableShuffleTracks.filter(track => !(track.id === this.currentTrack.id)) //Remove track from pool
         this.playbackIndex = this.trackList.findIndex(track => track.id === this.currentTrack.id) //Set correct position of queue in case shuffle is disabled
+    }
+
+    public onchange() {
     }
 
     public peek() {
@@ -128,5 +147,12 @@ export class MusicQueue {
         this.trackList = this.trackList.filter(existing_track => !(existing_track.id === track.id))
         this.availableShuffleTracks = this.availableShuffleTracks.filter(existing_track => !(existing_track.id === track.id))
         //TODO: removing current track from queue what do?
+    }
+
+    public select(track: any) {
+        let i = this.trackList.findIndex(existing_track => existing_track.id === track.id)
+        this.playbackIndex = i //Set playback index to this
+        this.availableShuffleTracks = [] //New song selected, previous shuffle assumptions void
+        this.currentTrack = track //Set new track
     }
 }

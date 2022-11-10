@@ -23,36 +23,21 @@ function play() {
     else player.pause()
 }
 
-//TEMP SETUP FOR TESTING
-fetch('/api/media/tracks/1').then(res => res.json().then(json => {
-    props.queue.add(json)
-    fetch('/api/media/tracks/2').then(res => res.json().then(json => {
-        props.queue.add(json)
-        fetch('/api/media/tracks/3').then(res => res.json().then(json => {
-            props.queue.add(json)
-            fetch('/api/media/tracks/4').then(res => res.json().then(json => {
-                props.queue.add(json)
-                props.queue.shuffle = true
-                changeTrack(props.queue.next())
-            }))
-        }))
-    }))
-}))
-
-function changeTrack(track: any) {
+props.queue.onchange = () => {
     let forcePlay = !player.paused
-    player.src = '/api/media/tracks/' + track.id + '/file'
+    player.src = '/api/media/tracks/' + props.queue.currentTrack.id + '/file'
     if (forcePlay) player.play()
 }
 </script>
 
 <template>
     <div class="audio-controls">
-        <div class="hbox margin">
-            <img id="album-art" :src="'/api/media/tracks/' + queue.currentTrack.id + '/art'" alt="Album Art">
+        <div class="hbox margin clickable">
+            <img id="album-art" :src="queue.currentTrack.id ? '/api/media/tracks/' + queue.currentTrack.id + '/art' : '../assets/logo.svg'" alt="Album Art">
             <div class="vbox" id="track-info">
-                <div style="font-weight: bold">{{queue.currentTrack.title}}</div>
-                <div>{{queue.currentTrack.artist}}</div>
+                <!--We do a little trolling to let vue look at currentTrack properly-->
+                <div style="font-weight: bold">{{queue.currentTrack.title || "Unknown Title"}}</div>
+                <div>{{queue.currentTrack.artist || "Unknown Artist"}}</div>
             </div>
         </div>
         <div class="vbox margin">
@@ -64,9 +49,9 @@ function changeTrack(track: any) {
             @mouseup="seekUpdates = true"
             @touchend="seekUpdates = true"/>
             <div class="hbox" id="playback-buttons">
-                <button @click="changeTrack(queue.previous())">PREV</button>
+                <button @click="queue.previous()">PREV</button>
                 <button @click="play">PLAY</button>
-                <button @click="changeTrack(queue.next())">NEXT</button>
+                <button @click="queue.next()">NEXT</button>
             </div>
         </div>
         <div class="hbox-reverse margin">
