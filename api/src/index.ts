@@ -2,9 +2,9 @@ import express from 'express';
 import session from 'express-session'
 import { RelationalStore } from './lib/RelationalStore/index.js'
 import { mainDataSource } from './lib/dbinfo/database.js';
-import usersRouter from './users.js';
-import authRouter from './auth.js'
-import mediaRouter from './media/index.js'
+import usersRouter from './routes/users.js';
+import authRouter from './routes/auth.js'
+import mediaRouter from './routes/media/index.js'
 import { Session } from './lib/entity/auth/session.js';
 import type { User } from './lib/entity/user/user.js';
 
