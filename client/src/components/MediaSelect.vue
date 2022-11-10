@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { Ref } from 'vue';
 import { ref } from 'vue';
-import type { MusicQueue } from './MusicQueue';
+import type { IMusicQueue } from './MusicQueue';
 
 const props = defineProps<{
-    queue: MusicQueue
+    queue: IMusicQueue
 }>()
 const searchText = ref("")
 const searchResults = ref([] as any[])

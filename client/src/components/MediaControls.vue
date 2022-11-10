@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import SpeakerIcon from './icons/IconSpeaker.vue'
-import type { MusicQueue } from './MusicQueue'
+import type { IMusicQueue } from './MusicQueue'
 import { ref } from 'vue'
 
 const props = defineProps<{
-    queue: MusicQueue
+    queue: IMusicQueue
 }>()
 
 const player = new Audio()

@@ -2,9 +2,9 @@
 import { ref } from 'vue';
 import MediaControls from './components/MediaControls.vue'
 import MediaSelect from './components/MediaSelect.vue'
-import { MusicQueue } from './components/MusicQueue';
+import { LocalMusicQueue } from './components/MusicQueue';
 
-const queue = ref(new MusicQueue())
+const queue = ref(new LocalMusicQueue())
 </script>
 
 <template>
