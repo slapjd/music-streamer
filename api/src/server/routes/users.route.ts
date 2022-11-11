@@ -1,8 +1,9 @@
-import express, { Request, Response } from 'express'
+import { Request, Response, Router } from 'express'
 import { mainDataSource } from '../../config/database.js'
+import strings from '../../config/strings.js'
 import { User } from '../entities/user.js'
 
-const router: express.Router = express.Router()
+const router: Router = Router()
 
 // register routes
 // router.get("/", async function (_req: Request, res: Response) {
@@ -35,7 +36,7 @@ router.post("/", async function (req: Request, res: Response) {
     //Checks passed, we can make a new usery boi
     const user = User.synthesize(req.body['username'], req.body['password']) //Done manually to avoid accidental client-side hash creation
     await mainDataSource.getRepository(User).save(user)
-    return res.send({message: "Success"})
+    return res.send({message: strings.SUCCESS})
 })
 
 router.put("/:id", async function (req: Request, res: Response) {
