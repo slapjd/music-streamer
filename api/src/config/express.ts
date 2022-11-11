@@ -21,11 +21,20 @@ export const server = createServer(app)
 export const io = new Server(server)
 
 app.use(express.json())
-app.use(session({
+const sessionMiddleware = session({
     resave: false,
     saveUninitialized: false,
     store: new RelationalStore(mainDataSource.getRepository(Session)),
     secret: config.credentials.session_secret,
-}))
+})
+app.use(sessionMiddleware)
+
+// convert a connect middleware to a Socket.IO middleware
+// fuck ur type checking
+//TODO: this but with proper typing and ideally generic
+function socketSessionMiddleware(socket: any, next: any) {
+    return sessionMiddleware(socket.request, {} as any, next)
+}
+io.use(socketSessionMiddleware)
 
 app.use('/', routes)
