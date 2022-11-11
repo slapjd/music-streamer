@@ -5,7 +5,7 @@ import authController from '../controllers/auth.controller.js'
 
 const router: Router = Router()
 
-router.post("/", validate(paramValidation.login), authController.login)
+router.post("/", validate(paramValidation.auth.login), authController.login)
 router.delete("/", authController.destroySession)
 
 // router.get("/test", async function (req: Request, res: Response) {

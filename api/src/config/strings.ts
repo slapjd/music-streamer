@@ -10,6 +10,10 @@ const strings = {
         INCORRECT_CREDENTIALS: "Username or password incorrect",
         INVALID_SESSION: "Session data is corrupt"
     },
+    users: {
+        USERNAME_TAKEN: "An account with this username already exists",
+        NOT_FOUND: "User with requested id could not be found"
+    },
     server: {
         MEDIA_DIR_ACCESS_FAILURE: "Configured media directory could not be accessed correctly"
     },
