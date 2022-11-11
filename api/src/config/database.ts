@@ -1,9 +1,9 @@
 import { DataSource } from "typeorm";
-import { Session } from "../entity/auth/session.js";
-import { Album } from "../entity/media/album.js";
-import { Artist } from "../entity/media/artist.js";
-import { Track } from "../entity/media/track.js";
-import { User } from "../entity/user/user.js";
+import { Session } from "../server/entities/session.js";
+import { Album } from "../server/entities/album.js";
+import { Artist } from "../server/entities/artist.js";
+import { Track } from "../server/entities/track.js";
+import { User } from "../server/entities/user.js";
 
 export const mainDataSource = new DataSource({
     type: 'mariadb',

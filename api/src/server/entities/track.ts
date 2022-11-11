@@ -1,5 +1,5 @@
 import { AfterInsert, BeforeRemove, Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, Relation } from "typeorm";
-import { User } from "../user/user.js";
+import { User } from "./user.js";
 import { Album } from "./album.js";
 import { Artist } from "./artist.js";
 import fs from 'fs/promises'

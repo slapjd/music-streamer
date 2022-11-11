@@ -7,8 +7,8 @@ import {
     OneToMany,
     Relation
 } from "typeorm"
-import { Session } from "../auth/session.js"
-import { Track } from "../media/track.js"
+import { Session } from "./session.js"
+import { Track } from "./track.js"
 
 @Entity()
 export class User {
