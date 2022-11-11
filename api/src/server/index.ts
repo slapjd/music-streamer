@@ -1,7 +1,7 @@
 import { mainDataSource } from '../config/database.js';
 
 import config from '../config/config.js'
-import app from '../config/express.js'
+import { server } from '../config/express.js'
 
 //Fuck singletons and shit just do what typeorm bloody recommends
 mainDataSource
@@ -13,6 +13,6 @@ mainDataSource
         console.error("Error during Data Source initialization:", err)
     });
 
-app.listen(config.server.port, () => {
+server.listen(config.server.port, () => {
   console.log(`Server running on port ${config.server.port}`);
 })

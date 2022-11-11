@@ -1,4 +1,6 @@
 import express from 'express';
+import { createServer } from 'http'
+import { Server } from 'socket.io'
 import session from 'express-session'
 import { mainDataSource } from './database.js';
 import { Session } from '../server/entities/session.js';
@@ -14,7 +16,9 @@ declare module 'express-session' {
     }
 }
 
-const app = express()
+export const app = express()
+export const server = createServer(app)
+export const io = new Server(server)
 
 app.use(express.json())
 app.use(session({
@@ -25,5 +29,3 @@ app.use(session({
 }))
 
 app.use('/', routes)
-
-export default app
