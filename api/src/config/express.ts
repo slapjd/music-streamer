@@ -1,6 +1,6 @@
 import express, { NextFunction, Request, Response } from 'express'
 import { createServer } from 'http'
-import { Server } from 'socket.io'
+import { Server, Socket } from 'socket.io'
 import session from 'express-session'
 import { mainDataSource } from './database.js'
 import { Session } from '../server/entities/session.js'
@@ -13,13 +13,27 @@ import config from './config.js'
 
 declare module 'express-session' {
     interface SessionData {
-        user: User | undefined
+        user?: User
     }
+}
+
+declare module 'http' {
+    //Gives socket.io access to session
+    interface IncomingMessage {
+        session: session.Session & Partial<session.SessionData>
+    }
+}
+
+interface PlaybackSession {
+    host: Socket
+    remotes: Socket[]
 }
 
 export const app = express()
 export const server = createServer(app)
 export const io = new Server(server)
+
+const playbackSessions: any = {}
 
 app.use(express.json())
 const sessionMiddleware = session({
@@ -39,5 +53,12 @@ function wrap(middleware: ExpressMiddleware) {
 }
 io.use(wrap(sessionMiddleware))
 io.use(wrap(requiresLogin)) //All websocket sessions require a login
+
+io.on("connection", (socket) => {
+    socket.request.session.user = socket.request.session.user as User
+    if (playbackSessions[socket.request.session.user.id] === undefined) {
+        
+    }
+})
 
 app.use('/', routes)
