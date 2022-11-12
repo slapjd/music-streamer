@@ -1,14 +1,15 @@
-import express from 'express';
+import express, { NextFunction, Request, Response } from 'express'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
 import session from 'express-session'
-import { mainDataSource } from './database.js';
-import { Session } from '../server/entities/session.js';
-import type { User } from '../server/entities/user.js';
-import { RelationalStore } from '../lib/RelationalStore.js';
+import { mainDataSource } from './database.js'
+import { Session } from '../server/entities/session.js'
+import type { User } from '../server/entities/user.js'
+import { RelationalStore } from '../lib/RelationalStore.js'
 import routes from '../server/routes/index.route.js'
+import requiresLogin from '../server/middlewares/requires-login.middleware.js'
 
-import config from './config.js';
+import config from './config.js'
 
 declare module 'express-session' {
     interface SessionData {
@@ -30,11 +31,13 @@ const sessionMiddleware = session({
 app.use(sessionMiddleware)
 
 // convert a connect middleware to a Socket.IO middleware
-// fuck ur type checking
-//TODO: this but with proper typing and ideally generic
-function socketSessionMiddleware(socket: any, next: any) {
-    return sessionMiddleware(socket.request, {} as any, next)
+// fuck ur type checking (but a bit less)
+//TODO: this but with proper typing maybe
+type ExpressMiddleware = (req: Request, res: Response, next: NextFunction) => void
+function wrap(middleware: ExpressMiddleware) {
+    return (socket: any, next: any) => middleware(socket.request, {} as any, next) 
 }
-io.use(socketSessionMiddleware)
+io.use(wrap(sessionMiddleware))
+io.use(wrap(requiresLogin)) //All websocket sessions require a login
 
 app.use('/', routes)
