@@ -13,7 +13,7 @@ import config from './config.js'
 
 declare module 'express-session' {
     interface SessionData {
-        user?: User
+        user: User | null
     }
 }
 
@@ -33,7 +33,7 @@ export const app = express()
 export const server = createServer(app)
 export const io = new Server(server)
 
-const playbackSessions: any = {}
+const playbackSessions: PlaybackSession[] = []
 
 app.use(express.json())
 const sessionMiddleware = session({
@@ -53,11 +53,46 @@ function wrap(middleware: ExpressMiddleware) {
 }
 io.use(wrap(sessionMiddleware))
 io.use(wrap(requiresLogin)) //All websocket sessions require a login
+io.use((socket: Socket, next) => {
+    const req = socket.request;
+    req.session.reload((err) => {
+        if (err) {
+            socket.disconnect();
+        } else {
+            next();
+        }
+    });
+})
 
-io.on("connection", (socket) => {
+io.on("connection", (socket: Socket) => {
     socket.request.session.user = socket.request.session.user as User
     if (playbackSessions[socket.request.session.user.id] === undefined) {
-        
+        playbackSessions[socket.request.session.user.id] = {
+            host: socket,
+            remotes: []
+        }
+    } else {
+        playbackSessions[socket.request.session.user.id]?.remotes.push(socket)
+    }
+})
+
+io.on("disconnect", (socket: Socket) => {
+    //Lots of not-null assertions because typescript is dumb and we are smort
+    const req = socket.request
+
+    req.session.user = req.session.user!
+    if (!playbackSessions[req.session.user.id]) return //We do nothing because the session is already gone
+    
+    const i = playbackSessions[req.session.user.id]!.remotes.findIndex(s => s == socket)
+
+    if (i) {
+        playbackSessions[req.session.user.id]!.remotes.splice(i, 1)
+    } else if (playbackSessions[req.session.user.id]!.host == socket) {
+        if (!playbackSessions[req.session.user.id]!.remotes[0]) {
+            delete playbackSessions[req.session.user.id]
+        } else {
+            playbackSessions[req.session.user.id]!.host = playbackSessions[req.session.user.id]!.remotes[0]!
+        }
     }
 })
 
