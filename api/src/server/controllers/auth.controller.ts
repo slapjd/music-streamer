@@ -34,7 +34,7 @@ function logout(req: Request, res: Response) {
     if (!req.session.user) return res.status(400).send({message: strings.auth.NOT_LOGGED_IN})
 
     io.to(req.session.id).disconnectSockets() //Done before user is logged out just in case
-    req.session.user = null
+    req.session.user = null //Deletes when saved
     return res.send({message: strings.SUCCESS})
 }
 
