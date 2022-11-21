@@ -36,49 +36,40 @@ async function findFiles(dir: Dir, allowSymlink: boolean = false): Promise<strin
 }
 
 async function get(req: Request, res: Response) {
-    req.params['id'] = req.params['id'] as string //validate() ensures this to be true even if typescript can't
-    req.session.user = req.session.user as User
-
     const track = await trackRepo.findOne({
         relations: ['artists', 'album', 'owner'],
         where: {
-            id: +req.params['id']
+            id: +req.params['id']!
         }
     })
     if (!track) return res.status(404).send({message: strings.track.NOT_FOUND})
-    if (track.owner.id != (req.session.user as User).id) return res.status(403).send({message: strings.track.ACCESS_FORBIDDEN})
+    if (track.owner.id != req.session.user!.id) return res.status(403).send({message: strings.track.ACCESS_FORBIDDEN})
     delete (track as any).owner //Required for authentication but not relevant to user TODO: maybe remove this from json
 
     return res.send(track)
 }
 
 async function getFile(req: Request, res:Response) {
-    req.session.user = req.session.user as User
-    req.params['id'] = req.params['id'] as string
-
     const track = await trackRepo.findOne({
         relations: ['owner'],
         where: {
-            id: +req.params['id']
+            id: +req.params['id']!
         }
     })
 
     if (!track) return res.status(404).send({message: strings.track.NOT_FOUND})
-    if (track.owner.id != req.session.user.id) return res.status(403).send({message: strings.track.ACCESS_FORBIDDEN})
+    if (track.owner.id != req.session.user!.id) return res.status(403).send({message: strings.track.ACCESS_FORBIDDEN})
 
     return res.setHeader('X-Accel-Redirect', '/_media/' + req.params['id']).send() //Tells nginx to serve requested (protected) media file
 }
 
 async function getArt(req: Request, res: Response) {
-    req.session.user = req.session.user as User
-    req.params['id'] = req.params['id'] as string
-
     var track = null
     try {
         track = await trackRepo.findOne({
             relations: ['owner'],
             where: {
-                id: +req.params['id']
+                id: +req.params['id']!
             }
         })
     } catch (error) {
@@ -86,7 +77,7 @@ async function getArt(req: Request, res: Response) {
     }
     
     if (!track) return res.status(404).send({message: strings.track.NOT_FOUND})
-    if (track.owner.id != req.session.user.id) return res.status(403).send({message: strings.track.ACCESS_FORBIDDEN})
+    if (track.owner.id != req.session.user!.id) return res.status(403).send({message: strings.track.ACCESS_FORBIDDEN})
 
     const tag = await parseFile(track.filepath)
     if (!tag.common.picture || !tag.common.picture[0]) return res.status(404).send({message: strings.track.NO_ART})
@@ -102,7 +93,7 @@ async function search(req: Request, res: Response) {
         relations: ['artists', 'album'],
         where: {
             owner: {
-                id: (req.session.user as User).id
+                id: req.session.user!.id
             },
             title: title
         }
@@ -111,11 +102,9 @@ async function search(req: Request, res: Response) {
 }
 
 async function deleteAll(req: Request, res: Response) {
-    req.session.user = req.session.user as User
-
     const tracks = await trackRepo.findBy({
         owner: {
-            id: req.session.user.id
+            id: req.session.user!.id
         }
     })
     const results = await trackRepo.remove(tracks)
@@ -123,13 +112,10 @@ async function deleteAll(req: Request, res: Response) {
 }
 
 async function deleteOne(req: Request, res: Response) {
-    req.session.user = req.session.user as User
-    req.params['id'] = req.params['id'] as string
-
     const tracks = await trackRepo.findBy({
-        id: +req.params['id'],
+        id: +req.params['id']!,
         owner: {
-            id: req.session.user.id
+            id: req.session.user!.id
         }
     })
     const results = await trackRepo.remove(tracks)
@@ -139,10 +125,8 @@ async function deleteOne(req: Request, res: Response) {
 //OK here's where the bastard importing lives and where we get to be sad
 //TODO: upload from client?
 async function doImport(req: Request, res: Response) {
-    req.session.user = req.session.user as User
-
     var path = config.virtual_folders.music
-    path += req.session.user.username + '/'
+    path += req.session.user!.username + '/'
     
     const newTracks = []
 
@@ -184,7 +168,7 @@ async function doImport(req: Request, res: Response) {
         if (existing !== null) continue //Track under same file path already added, no need to import it again.
 
         const newTrack = new Track()
-        newTrack.owner = req.session.user
+        newTrack.owner = req.session.user!
         newTrack.filepath = path
         newTrack.artists = []
 

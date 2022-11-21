@@ -11,10 +11,8 @@ async function getAll(_req: Request, res: Response) {
 }
 
 async function getOne(req: Request, res: Response) {
-    req.params['id'] = req.params['id'] as string
-
     const results = await userRepo.findOneBy({
-        id: +req.params['id'],
+        id: +req.params['id']!,
     })
     return res.send(results)
 }
@@ -35,8 +33,6 @@ async function create(req: Request, res: Response) {
 }
 
 async function update(req: Request, res: Response) {
-    req.session.user = req.session.user as User
-
     //userRepo.merge(user, req.body)
     //Add any properties that are allowed to be set on a user account settings change here
     //Actually not really required because typeorm doesn't cascade saving but whatever
@@ -47,15 +43,13 @@ async function update(req: Request, res: Response) {
     }
 
     //TODO: check if password merging works?
-    req.session.user.merge(safeBody)
-    const results = await userRepo.save(req.session.user) //Does not happen on session save (cascade is false)
+    req.session.user!.merge(safeBody)
+    const results = await userRepo.save(req.session.user!) //Does not happen on session save (cascade is false)
     return res.send(results)
 }
 
 async function deleteSelf(req: Request, res: Response) {
-    req.session.user = req.session.user as User
-
-    const results = await userRepo.remove(req.session.user)
+    const results = await userRepo.remove(req.session.user!)
     req.session.destroy(_ => {
         res.send(results)
     })
@@ -64,10 +58,8 @@ async function deleteSelf(req: Request, res: Response) {
 
 //TODO: validate admin credentials here (or as middleware)
 async function adminUpdate(req: Request, res: Response) {
-    req.params['id'] = req.params['id'] as string
-
     const user = await userRepo.findOneBy({
-        id: +req.params['id'],
+        id: +req.params['id']!,
     })
     if (user === null) {
         return res.status(404).send({ message: strings.users.NOT_FOUND })
@@ -89,10 +81,8 @@ async function adminUpdate(req: Request, res: Response) {
 
 //TODO: See above
 async function adminDelete(req: Request, res: Response) {
-    req.params['id'] = req.params['id'] as string
-
     const users = await mainDataSource.getRepository(User).findBy({
-        id: +req.params['id']
+        id: +req.params['id']!
     })
 
     const results = await mainDataSource.getRepository(User).remove(users)
