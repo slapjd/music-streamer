@@ -52,7 +52,6 @@ function wrap(middleware: ExpressMiddleware) {
     return (socket: any, next: any) => middleware(socket.request, {} as any, next) 
 }
 io.use(wrap(sessionMiddleware))
-io.use(wrap(requiresLogin)) //All websocket sessions require a login
 io.use((socket: Socket, next) => {
     const req = socket.request;
     req.session.reload((err) => {
@@ -63,17 +62,20 @@ io.use((socket: Socket, next) => {
         }
     });
 })
+io.use(wrap(requiresLogin)) //All websocket sessions require a login
 
 io.on("connection", (socket: Socket) => {
-    socket.request.session.user = socket.request.session.user as User
-    if (playbackSessions[socket.request.session.user.id] === undefined) {
+    socket.request.session.user = socket.request.session.user!
+    if (!playbackSessions[socket.request.session.user.id]) {
         playbackSessions[socket.request.session.user.id] = {
             host: socket,
             remotes: []
         }
     } else {
-        playbackSessions[socket.request.session.user.id]?.remotes.push(socket)
+        playbackSessions[socket.request.session.user.id]!.remotes.push(socket)
     }
+
+    socket.join(socket.request.session.id)
 })
 
 io.on("disconnect", (socket: Socket) => {
@@ -92,7 +94,12 @@ io.on("disconnect", (socket: Socket) => {
             delete playbackSessions[req.session.user.id]
         } else {
             playbackSessions[req.session.user.id]!.host = playbackSessions[req.session.user.id]!.remotes[0]!
+            playbackSessions[req.session.user.id]!.remotes.splice(0,1)
         }
+    } else {
+        //Socket has session but is not part of playbackSession.
+        //dafuq?
+        throw "PLAYBACK_SESSION_PREMATURELY_DELETED_SEND_HELP"
     }
 })
 

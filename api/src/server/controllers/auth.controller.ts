@@ -1,5 +1,6 @@
 import type { Request, Response } from "express"
 import { mainDataSource } from "../../config/database.js"
+import { io } from "../../config/express.js"
 import strings from "../../config/strings.js"
 import { User } from "../entities/user.js"
 
@@ -29,10 +30,10 @@ async function login(req: Request, res: Response) {
     return res.send({message: strings.SUCCESS})
 }
 
-//TODO: this doesn't work, RelationalStore prob needs fixing
 function logout(req: Request, res: Response) {
     if (!req.session.user) return res.status(400).send({message: strings.auth.NOT_LOGGED_IN})
 
+    io.to(req.session.id).disconnectSockets() //Done before user is logged out just in case
     req.session.user = null
     return res.send({message: strings.SUCCESS})
 }
@@ -40,6 +41,7 @@ function logout(req: Request, res: Response) {
 function destroySession(req: Request, res: Response) {
     if (!req.session) res.status(500).send({message: strings.auth.INVALID_SESSION})
     else {
+        io.to(req.session.id).disconnectSockets()
         req.session.destroy(_ => {
             res.send({message: strings.SUCCESS})
         })
