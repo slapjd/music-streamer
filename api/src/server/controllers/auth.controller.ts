@@ -31,9 +31,9 @@ async function login(req: Request, res: Response) {
 
 //TODO: this doesn't work, RelationalStore prob needs fixing
 function logout(req: Request, res: Response) {
-    if (!req.session.user) res.status(400).send({message: strings.auth.NOT_LOGGED_IN})
+    if (!req.session.user) return res.status(400).send({message: strings.auth.NOT_LOGGED_IN})
 
-    req.session.user = undefined
+    req.session.user = null
     return res.send({message: strings.SUCCESS})
 }
 

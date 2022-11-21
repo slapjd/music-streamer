@@ -21,7 +21,7 @@ export class Session implements ISession {
     @ManyToOne(_type => User, (user) => user.loginSessions, {
         nullable: true
     })
-    public user?: Relation<User>
+    public user!: Relation<User | null>
 
     @Column("text")
     private cookie_json = "";

@@ -6,7 +6,7 @@ import authController from '../controllers/auth.controller.js'
 const router: Router = Router()
 
 router.post("/", validate(paramValidation.auth.login), authController.login)
-router.delete("/", authController.destroySession)
+router.delete("/", authController.logout)
 
 // router.get("/test", async function (req: Request, res: Response) {
 //     if (req.sessionStore.all) {
