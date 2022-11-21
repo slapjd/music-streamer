@@ -244,7 +244,7 @@ async function doImport(req: Request, res: Response) {
         }
         newTrack.album = album
 
-        var title: string | undefined = tag.common.title
+        var title: string | null = tag.common.title ? tag.common.title : null
         newTrack.title = title
 
         await trackRepo.save(newTrack)

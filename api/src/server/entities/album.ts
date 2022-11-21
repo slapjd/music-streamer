@@ -8,15 +8,17 @@ export class Album {
 
     //Albums without titles are the large bad but technically supportable so here we are
     @Column({
+        type: String,
         nullable: true
     })
-    public title?: string
+    public title!: string | null
 
     //Album artist is not necessarily stored
     @Column({
+        type: String,
         nullable: true
     })
-    public albumArtist?: string //TODO: insert unknown artist
+    public albumArtist!: string | null //TODO: insert unknown artist
 
     @OneToMany(_type => Track, (track) => track.album, {
         nullable: true,

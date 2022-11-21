@@ -13,14 +13,16 @@ export class Track {
     //While tracks without a title are *extremely* bad practice
     //They are not *technically* required
     @Column({
+        type: String,
         nullable: true
     })
-    public title?: string
+    public title!: string | null
 
     @Column({
+        type: String,
         nullable: true
     })
-    private artistStringOverride?: string
+    private artistStringOverride!: string | null
 
     private generateArtistString(): string {
         if (!this.artists || this.artists.length < 1) return "Unknown Artist"
@@ -42,7 +44,7 @@ export class Track {
         else return this.artistStringOverride
     }
     public set displayArtist(value: string | undefined) {
-        if (this.generateArtistString() === value) delete this.artistStringOverride //No point storing it if we're just gonna generate it the same
+        if (this.generateArtistString() === value || value === undefined) this.artistStringOverride = null //No point storing it if we're just gonna generate it the same
         else this.artistStringOverride = value
     }
 
@@ -56,7 +58,7 @@ export class Track {
     @ManyToOne(_type => Album, (album) => album.tracks, {
         nullable: true
     })
-    public album?: Relation<Album>
+    public album!: Relation<Album | null>
 
     //All tracks need a user that uploaded them
     @ManyToOne(_type => User, (user) => user.ownedTracks, {})
