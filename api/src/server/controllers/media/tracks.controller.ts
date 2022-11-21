@@ -4,7 +4,6 @@ import { mainDataSource } from "../../../config/database.js";
 import { Album } from "../../entities/album.js";
 import { Artist } from "../../entities/artist.js";
 import { Track } from "../../entities/track.js";
-import type { User } from "../../entities/user.js";
 import strings from '../../../config/strings.js'
 import { parseFile } from "music-metadata";
 import config from "../../../config/config.js";
