@@ -9,6 +9,7 @@ import { parseFile } from "music-metadata";
 import config from "../../../config/config.js";
 import type { Dir, Stats } from "fs";
 import fs from "fs/promises"
+import { io } from "../../../config/express.js";
 
 const trackRepo: Repository<Track> = mainDataSource.getRepository(Track)
 const artistRepo: Repository<Artist> = mainDataSource.getRepository(Artist)
@@ -100,6 +101,7 @@ async function search(req: Request, res: Response) {
     return res.send(tracks)
 }
 
+//DEBUG
 async function deleteAll(req: Request, res: Response) {
     const tracks = await trackRepo.findBy({
         owner: {
@@ -118,6 +120,7 @@ async function deleteOne(req: Request, res: Response) {
         }
     })
     const results = await trackRepo.remove(tracks)
+    io.to("USER" + req.session.user!.id).emit("trackDelete", +req.params['id']!)
     return res.send(results)
 }
 

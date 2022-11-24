@@ -92,7 +92,11 @@ export class Track {
         if (!nginx_path) throw "VIRTUAL_NGINX_FOLDER UNSET SOMEHOW"
         nginx_path += 'media/'
 
-        await fs.rm(nginx_path + this.id.toString())
+        try {
+            await fs.rm(nginx_path + this.id.toString())
+        } catch (e) {
+            console.warn("COULD_NOT_REMOVE_FILE " + nginx_path + this.id.toString())
+        }
     }
 
     //You can't depend on mainDataSource because mainDataSource depends on you so bad things happen mkay

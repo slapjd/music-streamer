@@ -21,6 +21,7 @@ function connect(socket: Socket) {
     }
 
     socket.join(socket.request.session.id)
+    socket.join("USER" + socket.request.session.user.id)
 }
 
 function disconnect(socket: Socket) {
