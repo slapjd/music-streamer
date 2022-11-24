@@ -1,7 +1,9 @@
 import type { Socket } from "socket.io"
-import { io } from "../../config/express"
+import { io } from "../../config/express.js"
 
 function connect(socket: Socket) {
+    console.log("CONNECT")
+
     const req = socket.request
     req.session.user = req.session.user!
 

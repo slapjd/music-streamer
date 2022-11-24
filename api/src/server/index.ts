@@ -2,6 +2,7 @@ import { mainDataSource } from '../config/database.js';
 
 import config from '../config/config.js'
 import { server } from '../config/express.js'
+import './routes/playback.io.route.js'
 
 //Fuck singletons and shit just do what typeorm bloody recommends
 mainDataSource

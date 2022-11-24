@@ -46,6 +46,7 @@ function wrap(middleware: ExpressMiddleware) {
 }
 io.use(wrap(sessionMiddleware))
 io.use((socket: Socket, next) => { //Reload session on each incoming message
+    console.log("DEBUG_1")
     const req = socket.request;
     req.session.reload((err) => {
         if (err) {
