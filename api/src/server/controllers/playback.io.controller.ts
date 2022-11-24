@@ -2,8 +2,6 @@ import type { Socket } from "socket.io"
 import { io } from "../../config/express.js"
 
 function connect(socket: Socket) {
-    console.log("CONNECT")
-
     const req = socket.request
     req.session.user = req.session.user!
 
@@ -16,6 +14,20 @@ function connect(socket: Socket) {
 
     socket.join(req.session.id) //Helpful when logouts are processed
     socket.join("USER" + req.session.user.id) //Used for synchronizing playback
+
+    socket.on("disconnect", async () => {
+        //Lots of not-null assertions because typescript is dum and we are smort
+        //This is called *after* the socket has left all its rooms
+        const req = socket.request
+        req.session.user = req.session.user!
+
+        if (!socket.rooms.has("HOST")) {
+            //Host has just disconnected, find a new host if possible.
+            var newHost = (await socket.to("USER" + req.session.user.id).fetchSockets()).find(() => true)
+            newHost?.join("HOST") //If no socket found, everyone has disconnected and host will be dealt with on next connection
+            newHost?.emit("becomeHost")
+        }
+    })
 
     socket.onAny((event, ...args) => {
         //Socket has been redefined here (i'm like pretty sure anyway, at least according to typescript)
@@ -32,17 +44,4 @@ function connect(socket: Socket) {
     })
 }
 
-async function disconnect(socket: Socket) {
-    //Lots of not-null assertions because typescript is dum and we are smort
-    //This is called *after* the socket has left all its rooms
-    const req = socket.request
-    req.session.user = req.session.user!
-
-    if (!socket.rooms.has("HOST")) {
-        //Host has just disconnected, find a new host if possible.
-        var newHost = (await socket.to("USER" + req.session.user.id).fetchSockets()).find(() => true)
-        newHost?.join("HOST") //If no socket found, everyone has disconnected and host will be dealt with on next connection
-    }
-}
-
-export default { connect, disconnect }
+export default { connect }
