@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Ref } from 'vue';
 import { ref } from 'vue';
-import type { IMusicQueue } from './MusicQueue';
+import type { IMusicQueue } from './IMusicQueuee';
 
 const props = defineProps<{
     queue: IMusicQueue
