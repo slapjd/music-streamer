@@ -1,5 +1,5 @@
-import type { ITrack, IObservableMusicQueue } from "./IMusicQueue"
-import { defaultTrack } from "./IMusicQueue"
+import type { ITrack, IObservableMusicQueue } from "./IObservableMusicQueue"
+import { defaultTrack } from "./IObservableMusicQueue"
 import type { Socket } from "socket.io-client"
 
 export class LocalMusicQueue implements IObservableMusicQueue{

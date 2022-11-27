@@ -1,4 +1,4 @@
-import { type ITrack, type IObservableMusicQueue, defaultTrack } from "./IMusicQueue"
+import { type ITrack, type IObservableMusicQueue, defaultTrack } from "./IObservableMusicQueue"
 import type { Socket } from "socket.io-client"
 import { computed, ref, type Ref, type WritableComputedRef } from "vue"
 

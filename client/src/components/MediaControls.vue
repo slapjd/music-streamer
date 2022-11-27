@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import SpeakerIcon from './icons/IconSpeaker.vue'
-import type { IObservableMusicQueue, ITrack } from '../MusicQueue/IMusicQueue'
+import type { IObservableMusicQueue, ITrack } from '../MusicQueue/IObservableMusicQueue'
 import { ref, type Ref } from 'vue'
-import { defaultTrack } from '../MusicQueue/IMusicQueue'
+import { defaultTrack } from '../MusicQueue/IObservableMusicQueue'
 
 const props = defineProps<{
     queue: IObservableMusicQueue
@@ -26,6 +26,7 @@ function play() {
     else player.pause()
 }
 
+//TODO: Resubscribe on host change
 props.queue.subscribe(() => {
     let forcePlay = !player.paused
     player.src = '/api/media/tracks/' + props.queue.currentTrack.id + '/file'

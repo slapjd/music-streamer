@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { shallowRef } from 'vue';
 import MediaControls from './components/MediaControls.vue'
 import MediaSelect from './components/MediaSelect.vue'
 import { LocalMusicQueue } from './MusicQueue/LocalMusicQueue';
 import { RemoteMusicQueue } from './MusicQueue/RemoteMusicQueue';
-import type { IObservableMusicQueue } from './MusicQueue/IMusicQueue';
+import type { IObservableMusicQueue } from './MusicQueue/IObservableMusicQueue';
 import io from 'socket.io-client'
 
 const socket = io({
@@ -17,7 +17,7 @@ socket.onAny((event, args) => {
   console.table(args)
 })
 
-const queue = ref()
+const queue = shallowRef() //MusicQueue is observable so we don't need deep reactivity. We only need to know if we changed between local and remote
 
 socket.on("becomeHost", () => {
   queue.value = new LocalMusicQueue(socket)
