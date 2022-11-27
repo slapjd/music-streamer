@@ -15,13 +15,25 @@ export interface ITrack {
     album: IAlbum
 }
 
-export interface IMusicQueue {
+export const defaultTrack: ITrack = {
+    id: -1,
+    title: "Unknown Track",
+    artist: "Unknown Artist",
+    album: {
+        title: "Unknown Album"
+    }
+}
+
+export interface IObservableMusicQueue {
     currentTrack: ITrack
     trackList: ITrack[]
     shuffle: boolean
     readonly preview: ITrack
 
-    onchange(): void //Called by us upon any state change
+    subscribe(callback: VoidFunction): void
+    unsubscribe(callback: VoidFunction): void
+    notify(): void
+
     playbackComplete(): void //Called by audio player on finishing playback
     next(): void
     previous(): void

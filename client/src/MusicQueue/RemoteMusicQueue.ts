@@ -1,28 +1,22 @@
-import type { ITrack, IMusicQueue } from "./IMusicQueue"
+import { type ITrack, type IObservableMusicQueue, defaultTrack } from "./IMusicQueue"
 import type { Socket } from "socket.io-client"
+import { computed, ref, type Ref, type WritableComputedRef } from "vue"
 
-export class RemoteMusicQueue implements IMusicQueue {
+export class RemoteMusicQueue implements IObservableMusicQueue {
     private _socket: Socket
-    private _currentTrack: ITrack = {
-        id: -1,
-        title: "",
-        artist: "",
-        album: {
-            title: ""
-        }
-    }
+    private _currentTrack: ITrack = defaultTrack
     private _shuffle = false //Cached value. Updates when websocket says to
     private _preview = this._currentTrack
+    private _subscribedEventListeners: VoidFunction[] = []
 
 
     public trackList: ITrack[] = []
 
-
-    public get currentTrack() : ITrack {
+    public get currentTrack() {
         return this._currentTrack
     }
-    public set currentTrack(v : ITrack) {
-        this._socket.emit("changeTrack", v)
+    public set currentTrack(value) {
+        this._socket.emit("changeTrack", value)
     }
 
     public get shuffle() : boolean {
@@ -37,8 +31,18 @@ export class RemoteMusicQueue implements IMusicQueue {
     }
     
 
-    public onchange(): void {}
-    public playbackComplete(): void {} //Not our problem baybeee
+    public notify() {
+        this._subscribedEventListeners.forEach((callback) => {
+            callback()
+        })
+    }
+    public subscribe(callback: VoidFunction) {
+        this._subscribedEventListeners.push(callback)
+    }
+    public unsubscribe(callback: VoidFunction): void {
+        this._subscribedEventListeners.splice(this._subscribedEventListeners.findIndex((listener) => listener == callback), 1)
+    }
+    public playbackComplete(): void {} //We don't *really* give a shit because host controls auto track changes
     public next(): void {
         this._socket.emit("next")
     }
@@ -62,14 +66,17 @@ export class RemoteMusicQueue implements IMusicQueue {
             this._currentTrack = track
             this._preview = preview
 
-            this.onchange()
+            this.notify()
         })
         this._socket.on('shuffleStateHost', ([shuffle]) => {
             this._shuffle = shuffle
+
+            this.notify()
         })
         this._socket.on('queueUpdateHost', ([trackList]) => {
-            console.table(trackList)
             this.trackList = trackList
+
+            this.notify()
         })
 
         this._socket.emit('remoteJoined')

@@ -1,24 +1,19 @@
-import type { ITrack, IMusicQueue } from "./IMusicQueue"
+import type { ITrack, IObservableMusicQueue } from "./IMusicQueue"
+import { defaultTrack } from "./IMusicQueue"
 import type { Socket } from "socket.io-client"
 
-export class LocalMusicQueue implements IMusicQueue{
+export class LocalMusicQueue implements IObservableMusicQueue{
     private _shuffleSeed = new Date().getTime()
     private _availableShuffleTracks: ITrack[] = []
     private _previousStack: ITrack[] = []
     private _nextStack: ITrack[] = []
     private _socket: Socket
     private _shuffle: boolean = false
-    private _currentTrack: ITrack = {
-        id: -1,
-        title: "",
-        artist: "",
-        album: {
-            title: ""
-        }
-    }
+    private _currentTrack: ITrack = defaultTrack
+    private _subscribedEventListeners: VoidFunction[] = []
 
     private get currentTrackIndex() : number {
-        return this.trackList.findIndex(track => track.id === this.currentTrack.id)
+        return this.trackList.findIndex(track => track.id == this.currentTrack.id)
     }
 
 
@@ -32,11 +27,11 @@ export class LocalMusicQueue implements IMusicQueue{
         this._currentTrack = v;
 
         //Shuffle magic (attempts not to repeat tracks too much)
-        this._availableShuffleTracks = this._availableShuffleTracks.filter(track => !(track.id === this.currentTrack.id))
-        if (this._availableShuffleTracks.length < 1) this._availableShuffleTracks = this.trackList.filter(track => !(track.id === this.currentTrack.id))
+        this._availableShuffleTracks = this._availableShuffleTracks.filter(track => !(track.id == this.currentTrack.id))
+        if (this._availableShuffleTracks.length < 1) this._availableShuffleTracks = this.trackList.filter(track => !(track.id == this.currentTrack.id))
         this._shuffleSeed++
 
-        this.onchange()
+        this.notify()
 
         this._socket.emit("changeTrackHost", v, this.preview)
     }
@@ -46,6 +41,9 @@ export class LocalMusicQueue implements IMusicQueue{
     }
     public set shuffle(value: boolean) {
         this._shuffle = value
+
+        this.notify()
+
         this._socket.emit("shuffleStateHost", value)
     }
 
@@ -92,11 +90,23 @@ export class LocalMusicQueue implements IMusicQueue{
     }
 
     private getNextNoShuffle(): ITrack {
-        return this.trackList[this.currentTrackIndex + 1 % this.trackList.length]
+        return this.trackList[(this.currentTrackIndex + 1) % this.trackList.length]
     }
 
 
-    public onchange(): void {}
+    public notify(): void {
+        this._subscribedEventListeners.forEach((callback) => {
+            callback()
+        })
+    }
+
+    public subscribe(callback: VoidFunction) {
+        this._subscribedEventListeners.push(callback)
+    }
+
+    public unsubscribe(callback: VoidFunction): void {
+        this._subscribedEventListeners.splice(this._subscribedEventListeners.findIndex((listener) => listener == callback), 1)
+    }
 
     public playbackComplete(): void {
         this.next()
@@ -134,13 +144,17 @@ export class LocalMusicQueue implements IMusicQueue{
     public add(track: ITrack): void {
         this.trackList.push(track)
         this._availableShuffleTracks.push(track) //Add new track as available to be shuffled in
+
+        this.notify()
         this._socket.emit("queueUpdateHost", this.trackList)
     }
 
     public remove(track: ITrack): void {
-        this.trackList = this.trackList.filter(existing_track => !(existing_track.id === track.id))
-        this._availableShuffleTracks = this._availableShuffleTracks.filter(existing_track => !(existing_track.id === track.id))
+        this.trackList = this.trackList.filter(existing_track => !(existing_track.id == track.id))
+        this._availableShuffleTracks = this._availableShuffleTracks.filter(existing_track => !(existing_track.id == track.id))
         //TODO: removing current track from queue what do?
+
+        this.notify()
         this._socket.emit("queueUpdateHost", this.trackList)
     }
 
@@ -151,8 +165,9 @@ export class LocalMusicQueue implements IMusicQueue{
     constructor(socket: Socket) {
         this._socket = socket
 
-        socket.on("queueUpdate", (trackList) => {
+        socket.on("queueUpdate", ([trackList]) => {
             this.trackList = trackList
+            this.notify()
             socket.emit("queueUpdateHost", trackList)
         })
 
@@ -161,11 +176,11 @@ export class LocalMusicQueue implements IMusicQueue{
             this._socket.emit("changeTrackHost", this.currentTrack, this.preview)
         })
 
-        socket.on("changeTrack", (current) => {
+        socket.on("changeTrack", ([current]) => {
             this.currentTrack = current
         })
 
-        socket.on("shuffleState", (shuffle) => {
+        socket.on("shuffleState", ([shuffle]) => {
             this.shuffle = shuffle
         })
 
@@ -177,11 +192,11 @@ export class LocalMusicQueue implements IMusicQueue{
             this.previous()
         })
 
-        socket.on("addTrack", (track) => {
+        socket.on("addTrack", ([track]) => {
             this.add(track)
         })
 
-        socket.on("removeTrack", (track) => {
+        socket.on("removeTrack", ([track]) => {
             this.remove(track)
         })
     }

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { Ref } from 'vue';
 import { ref } from 'vue';
-import type { IMusicQueue } from './IMusicQueuee';
+import type { IObservableMusicQueue, ITrack } from '../MusicQueue/IMusicQueue';
 
 const props = defineProps<{
-    queue: IMusicQueue
+    queue: IObservableMusicQueue
 }>()
 const searchText = ref("")
 const searchResults = ref([] as any[])
@@ -15,6 +15,7 @@ enum MenuMode {
 }
 
 const mode: Ref<MenuMode> = ref(MenuMode.Queue)
+const trackList: Ref<ITrack[]> = ref([])
 
 function setMode(newMode: MenuMode) {
     mode.value = newMode
@@ -24,6 +25,10 @@ async function search(text: string) {
     searchResults.value = await fetch('/api/media/tracks?title=' + text).then(res => res.json())
     mode.value = MenuMode.Search
 }
+
+props.queue.subscribe(() => {
+    trackList.value = props.queue.trackList
+})
 </script>
 
 <template>
@@ -42,7 +47,7 @@ async function search(text: string) {
                     <th>Artist</th>
                     <th>Album</th>
                 </tr>
-                <tr class="clickable" v-for="track in queue.trackList" @dblclick="queue.select(track)">
+                <tr class="clickable" v-for="track in trackList" @dblclick="queue.select(track)">
                     <td>{{track.title || "Unknown Title"}}</td>
                     <td>{{track.artist || "Unknown Artist"}}</td>
                     <td>{{track.album.title || "Unknown Album"}}</td>

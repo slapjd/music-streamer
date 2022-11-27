@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import SpeakerIcon from './icons/IconSpeaker.vue'
-import type { IMusicQueue } from '../MusicQueue/IMusicQueue'
-import { ref } from 'vue'
+import type { IObservableMusicQueue, ITrack } from '../MusicQueue/IMusicQueue'
+import { ref, type Ref } from 'vue'
+import { defaultTrack } from '../MusicQueue/IMusicQueue'
 
 const props = defineProps<{
-    queue: IMusicQueue
+    queue: IObservableMusicQueue
 }>()
 
 const player = new Audio()
@@ -18,26 +19,30 @@ player.ondurationchange = _ => maxTime.value = player.duration
 const volume = ref(50)
 player.onvolumechange = _ => volume.value = player.volume
 
+const currentTrack: Ref<ITrack> = ref(defaultTrack)
+
 function play() {
     if (player.paused) player.play()
     else player.pause()
 }
 
-props.queue.onchange = () => {
+props.queue.subscribe(() => {
     let forcePlay = !player.paused
     player.src = '/api/media/tracks/' + props.queue.currentTrack.id + '/file'
     if (forcePlay) player.play()
-}
+
+    currentTrack.value = props.queue.currentTrack
+})
 </script>
 
 <template>
     <div class="audio-controls">
         <div class="hbox margin clickable">
-            <img id="album-art" :src="queue.currentTrack.id ? '/api/media/tracks/' + queue.currentTrack.id + '/art' : '../assets/logo.svg'" alt="Album Art">
+            <img id="album-art" :src="currentTrack.id || currentTrack.id !== -1 ? '/api/media/tracks/' + currentTrack.id + '/art' : '/api/assets/logo.svg'" alt="Album Art">
             <div class="vbox" id="track-info">
                 <!--We do a little trolling to let vue look at currentTrack properly-->
-                <div style="font-weight: bold">{{queue.currentTrack.title || "Unknown Title"}}</div>
-                <div>{{queue.currentTrack.artist || "Unknown Artist"}}</div>
+                <div style="font-weight: bold">{{currentTrack.title || "Unknown Title"}}</div>
+                <div>{{currentTrack.artist || "Unknown Artist"}}</div>
             </div>
         </div>
         <div class="vbox margin">

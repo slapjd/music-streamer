@@ -4,17 +4,13 @@ import MediaControls from './components/MediaControls.vue'
 import MediaSelect from './components/MediaSelect.vue'
 import { LocalMusicQueue } from './MusicQueue/LocalMusicQueue';
 import { RemoteMusicQueue } from './MusicQueue/RemoteMusicQueue';
-import type { IMusicQueue } from './MusicQueue/IMusicQueue';
+import type { IObservableMusicQueue } from './MusicQueue/IMusicQueue';
 import io from 'socket.io-client'
-
-console.debug("PRE_SOCKET")
 
 const socket = io({
   path: '/api/socket.io' //socketio is kinda wack because our api is behind a proxy but vite also wants websocket access
 })
 //socket.connect()
-
-console.debug("POST_SOCKET")
 
 socket.onAny((event, args) => {
   console.debug(event)
