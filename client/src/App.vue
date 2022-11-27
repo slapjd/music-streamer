@@ -4,7 +4,7 @@ import MediaControls from './components/MediaControls.vue'
 import MediaSelect from './components/MediaSelect.vue'
 import { LocalMusicQueue } from './MusicQueue/LocalMusicQueue';
 import { RemoteMusicQueue } from './MusicQueue/RemoteMusicQueue';
-import type { IObservableMusicQueue } from './MusicQueue/IObservableMusicQueue';
+import type { IMusicQueue } from './MusicQueue/Interfaces
 import io from 'socket.io-client'
 
 const socket = io({

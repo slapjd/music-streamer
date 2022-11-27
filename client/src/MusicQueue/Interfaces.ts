@@ -24,15 +24,17 @@ export const defaultTrack: ITrack = {
     }
 }
 
-export interface IObservableMusicQueue {
+export interface IObservable {
+    subscribe(callback: VoidFunction): void
+    unsubscribe(callback: VoidFunction): void
+    notify(): void
+}
+
+export interface IMusicQueue {
     currentTrack: ITrack
     trackList: ITrack[]
     shuffle: boolean
     readonly preview: ITrack
-
-    subscribe(callback: VoidFunction): void
-    unsubscribe(callback: VoidFunction): void
-    notify(): void
 
     playbackComplete(): void //Called by audio player on finishing playback
     next(): void

@@ -1,13 +1,13 @@
-import { type ITrack, type IObservableMusicQueue, defaultTrack } from "./IObservableMusicQueue"
+import { type ITrack, type IMusicQueue, defaultTrack, type IObservable } from "./Interfaces"
 import type { Socket } from "socket.io-client"
 import { computed, ref, type Ref, type WritableComputedRef } from "vue"
+import { BaseObservable } from "./BaseObservable"
 
-export class RemoteMusicQueue implements IObservableMusicQueue {
+export class RemoteMusicQueue extends BaseObservable implements IMusicQueue {
     private _socket: Socket
     private _currentTrack: ITrack = defaultTrack
     private _shuffle = false //Cached value. Updates when websocket says to
     private _preview = this._currentTrack
-    private _subscribedEventListeners: VoidFunction[] = []
 
 
     public trackList: ITrack[] = []
@@ -31,17 +31,6 @@ export class RemoteMusicQueue implements IObservableMusicQueue {
     }
     
 
-    public notify() {
-        this._subscribedEventListeners.forEach((callback) => {
-            callback()
-        })
-    }
-    public subscribe(callback: VoidFunction) {
-        this._subscribedEventListeners.push(callback)
-    }
-    public unsubscribe(callback: VoidFunction): void {
-        this._subscribedEventListeners.splice(this._subscribedEventListeners.findIndex((listener) => listener == callback), 1)
-    }
     public playbackComplete(): void {} //We don't *really* give a shit because host controls auto track changes
     public next(): void {
         this._socket.emit("next")
@@ -60,6 +49,7 @@ export class RemoteMusicQueue implements IObservableMusicQueue {
     }
 
     constructor(socket: Socket) {
+        super()
         this._socket = socket
 
         this._socket.on('changeTrackHost', ([track, preview]) => {

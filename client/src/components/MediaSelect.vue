@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { Ref } from 'vue';
 import { ref } from 'vue';
-import type { IObservableMusicQueue, ITrack } from '../MusicQueue/IObservableMusicQueue';
+import type { IMusicQueue, ITrack } from '../MusicQueue/Interfaces
 
 const props = defineProps<{
-    queue: IObservableMusicQueue
+    queue: IMusicQueue
 }>()
 const searchText = ref("")
 const searchResults = ref([] as any[])
