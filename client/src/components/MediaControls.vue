@@ -3,9 +3,11 @@ import SpeakerIcon from './icons/IconSpeaker.vue'
 import type { IObservableMusicQueue, ITrack } from '../MusicQueue/IObservableMusicQueue'
 import { ref, type Ref } from 'vue'
 import { defaultTrack } from '../MusicQueue/IObservableMusicQueue'
+import type { Socket } from 'socket.io-client';
 
 const props = defineProps<{
-    queue: IObservableMusicQueue
+    queue: IObservableMusicQueue,
+    socket: Socket
 }>()
 
 const player = new Audio()
@@ -22,7 +24,9 @@ player.onvolumechange = _ => volume.value = player.volume
 const currentTrack: Ref<ITrack> = ref(defaultTrack)
 
 function play() {
-    if (player.paused) player.play()
+    if (player.paused) {
+        player.play()
+    }
     else player.pause()
 }
 

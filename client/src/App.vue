@@ -36,7 +36,7 @@ socket.on("becomeRemote", () => {
       <button id="buttonLogin">LOGIN</button>
       <button id="buttonLogout">LOGOUT</button>
     </div>
-    <MediaControls :queue="queue" id="test"/>
+    <MediaControls :queue="queue" :socket="socket" id="test"/>
   </div>
 </template>
 
