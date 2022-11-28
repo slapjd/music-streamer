@@ -112,16 +112,12 @@ export class LocalMusicQueue extends BaseObservable implements IMusicQueue{
     public add(track: ITrack): void {
         this.trackList.push(track)
         this._availableShuffleTracks.push(track) //Add new track as available to be shuffled in
-
-        this._socket.emit("queueUpdateHost", this.trackList)
     }
 
     public remove(track: ITrack): void {
         this.trackList = this.trackList.filter(existing_track => !(existing_track.id == track.id))
         this._availableShuffleTracks = this._availableShuffleTracks.filter(existing_track => !(existing_track.id == track.id))
         //TODO: removing current track from queue what do?
-
-        this._socket.emit("queueUpdateHost", this.trackList)
     }
 
     public select(track: ITrack): void {
@@ -150,6 +146,7 @@ export class LocalMusicQueue extends BaseObservable implements IMusicQueue{
         this._socket.on('remoteJoined', () => {
             this._socket.emit("queueUpdateHost", this.trackList)
             this._socket.emit("changeTrackHost", this.currentTrack, this.preview)
+            this._socket.emit("shuffleState", (this.shuffle))
         })
 
         socket.on("changeTrack", ([current]) => {
