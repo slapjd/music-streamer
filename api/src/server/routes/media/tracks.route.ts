@@ -8,7 +8,7 @@ const router: Router = Router()
 
 router.use(requiresLogin)
 
-router.get("/", tracksController.search)
+router.get("/", validate(paramValidation.tracks.search), tracksController.search)
 router.get("/:id", validate(paramValidation.tracks.getOne) , tracksController.get)
 router.get("/:id/file", validate(paramValidation.tracks.getOne), tracksController.getFile)
 router.get("/:id/art", validate(paramValidation.tracks.getOne), tracksController.getArt)

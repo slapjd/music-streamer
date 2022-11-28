@@ -11,6 +11,17 @@ export default {
             params: Joi.object({
                 id: Joi.number().required()
             })
+        },
+        search: {
+            query: Joi.object({
+                title: Joi.string(),
+                artist: Joi.object({
+                    name: Joi.string()
+                }).min(1),
+                album: Joi.object({
+                    title: Joi.string()
+                }).min(1)
+            }).min(1).required()
         }
     },
     auth: {

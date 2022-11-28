@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { FindOperator, ILike, IsNull, Repository } from "typeorm";
+import { FindOperator, FindOptionsWhere, ILike, IsNull, Repository } from "typeorm";
 import { mainDataSource } from "../../../config/database.js";
 import { Album } from "../../entities/album.js";
 import { Artist } from "../../entities/artist.js";
@@ -85,17 +85,26 @@ async function getArt(req: Request, res: Response) {
 }
 
 async function search(req: Request, res: Response) {
-    if (Object.keys(req.query).length < 1) return res.status(400).send({message: "You must have at least 1 search parameter"})
+    function convertStringsToDBOptions(object: any) {
+        let clone = {...object}
+        Object.entries(clone).forEach(([k,v]: any[]) => {
+            if (typeof v === 'object') {
+                clone[k] = convertStringsToDBOptions(v)
+            } else {
+                clone[k] = ILike('%' + v.toString() + '%')
+            }
+        })
+        return clone as FindOptionsWhere<Track>
+    }
+    let searchOptions = convertStringsToDBOptions(req.query)
 
-    let title = undefined
-    if (req.query['title']?.toString()) title = ILike('%' + req.query['title']?.toString() + '%')
     const tracks = await trackRepo.find({
         relations: ['artists', 'album'],
         where: {
             owner: {
                 id: req.session.user!.id
             },
-            title: title
+            ...searchOptions
         }
     })
     return res.send(tracks)
