@@ -10,6 +10,7 @@ import routes from '../server/routes/index.route.js'
 import requiresLogin from '../server/middlewares/requires-login.middleware.js'
 
 import config from './config.js'
+import type { ExtendedError } from 'socket.io/dist/namespace.js'
 
 declare module 'express-session' {
     interface SessionData {
@@ -38,11 +39,13 @@ const sessionMiddleware = session({
 app.use(sessionMiddleware)
 
 // convert a connect middleware to a Socket.IO middleware
-// fuck ur type checking (but a bit less)
-//TODO: this but with proper typing maybe
+// this is as close to proper type checking that we're ever getting
+// not every express middleware will work like this (we're missing things like req.param)
+// but as long as ur middleware doesn't require anything fancy from req ur good
 type ExpressMiddleware = (req: Request, res: Response, next: NextFunction) => void
-function wrap(middleware: ExpressMiddleware) {
-    return (socket: any, next: any) => middleware(socket.request, {} as any, next) 
+type SocketIOMiddleware = (socket: Socket, next: (err?: ExtendedError) => void) => void
+function wrap(middleware: ExpressMiddleware): SocketIOMiddleware {
+    return (socket: Socket, next: (err?: ExtendedError) => void) => middleware(socket.request as Request, {} as any, next as NextFunction) 
 }
 io.use(wrap(sessionMiddleware))
 io.use((socket: Socket, next) => { //Reload session on each incoming message
