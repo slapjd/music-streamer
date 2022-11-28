@@ -20,6 +20,8 @@ export class LocalMusicQueue extends BaseObservable implements IMusicQueue{
         return this.trackList.findIndex(track => track.id == this.currentTrack.id)
     }
 
+
+    public readonly remote: boolean = false
     
     public get trackList() : ITrack[] {
         return this._trackList

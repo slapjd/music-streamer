@@ -35,6 +35,7 @@ export interface IMusicQueue {
     trackList: ITrack[]
     shuffle: boolean
     readonly preview: ITrack
+    readonly remote: boolean
 
     playbackComplete(): void //Called by audio player on finishing playback
     next(): void

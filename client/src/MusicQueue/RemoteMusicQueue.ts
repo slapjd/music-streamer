@@ -11,6 +11,7 @@ export class RemoteMusicQueue extends BaseObservable implements IMusicQueue {
 
 
     public trackList: ITrack[] = []
+    public readonly remote: boolean = true
 
     public get currentTrack() {
         return this._currentTrack

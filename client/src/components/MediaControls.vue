@@ -23,11 +23,31 @@ player.onvolumechange = _ => volume.value = player.volume
 
 const currentTrack: Ref<ITrack> = ref(defaultTrack)
 
+function seek(time: number) {
+    player.currentTime = time
+    if (props.queue.remote) props.socket.emit("seek", time)
+    else props.socket.emit("seekHost", time)
+}
+
 function play() {
-    if (player.paused) {
+    if (props.queue.remote) props.socket.emit("play")
+    else {
         player.play()
+        props.socket.emit("playHost")
     }
-    else player.pause()
+}
+
+function pause() {
+    if (props.queue.remote) props.socket.emit("pause")
+    else {
+        player.pause()
+        props.socket.emit("pauseHost")
+    }
+}
+
+function togglePlay() {
+    if (player.paused) play()
+    else pause()
 }
 
 //TODO: Resubscribe on host change
@@ -38,6 +58,23 @@ props.queue.subscribe(() => {
 
     currentTrack.value = props.queue.currentTrack
 })
+
+if (props.queue.remote) {
+    props.socket.on("playHost", () => player.play())
+    props.socket.on("pauseHost", () => player.pause())
+    props.socket.on("seekHost", ([time]) => {
+        currentTime.value = time
+        player.currentTime = time
+    })
+} else {
+    props.socket.on("play", play)
+    props.socket.on("pause", pause)
+    props.socket.on("seek", ([time]) => {
+        currentTime.value = time
+        player.currentTime = time
+        props.socket.emit("seekHost", time)
+    })
+}
 </script>
 
 <template>
@@ -53,14 +90,14 @@ props.queue.subscribe(() => {
         <div class="vbox margin">
             <input type="range"
             min="0" :max="maxTime" step=0.001 v-model="currentTime"
-            @change="player.currentTime = currentTime"
+            @change="seek(currentTime)"
             @mousedown="seekUpdates = false"
             @touchstart="seekUpdates = false"
             @mouseup="seekUpdates = true"
             @touchend="seekUpdates = true"/>
             <div class="hbox" id="playback-buttons">
                 <button @click="queue.previous()">PREV</button>
-                <button @click="play">PLAY</button>
+                <button @click="togglePlay">PLAY</button>
                 <button @click="queue.next()">NEXT</button>
             </div>
         </div>

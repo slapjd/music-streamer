@@ -3,7 +3,12 @@ import type { IObservable } from "./Interfaces";
 
 //TODO: avoid reimplementing BaseObservable if at all possible (while also not reimplementing most of Array)
 export class ObservableList<T> extends Array<T> implements IObservable{
-    private _subscribedEventListeners: VoidFunction[] = []
+    private _subscribedEventListeners: VoidFunction[]
+
+    constructor() {
+        super()
+        this._subscribedEventListeners = []
+    }
 
     notifyWrapper<F extends (...args: any[]) => any>(fn: F) {
         return (...args: Parameters<F>): ReturnType<F> => {
