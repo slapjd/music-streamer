@@ -90,9 +90,9 @@ async function search(req: Request, res: Response) {
         Object.entries(clone).forEach(([k,v]: any[]) => {
             if (typeof v === 'object') {
                 clone[k] = convertStringsToDBOptions(v)
-            } else {
-                clone[k] = ILike('%' + v.toString() + '%')
-            }
+            } else if (typeof v === 'string') {
+                clone[k] = ILike('%' + v + '%')
+            } //Numbers should be exact matches
         })
         return clone as FindOptionsWhere<Track>
     }
