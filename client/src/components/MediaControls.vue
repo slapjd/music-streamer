@@ -34,6 +34,7 @@ function play() {
     else {
         player.play()
         props.socket.emit("playHost")
+        props.socket.emit("seekHost", player.currentTime)
     }
 }
 
@@ -42,6 +43,7 @@ function pause() {
     else {
         player.pause()
         props.socket.emit("pauseHost")
+        props.socket.emit("seekHost", player.currentTime)
     }
 }
 
@@ -60,12 +62,25 @@ props.queue.subscribe(() => {
 })
 
 if (props.queue.remote) {
-    props.socket.on("playHost", () => player.play())
-    props.socket.on("pauseHost", () => player.pause())
+    props.socket.on("playHost", () => {
+        //player.onload = player.play //Should be safe
+        player.play()
+    })
+    props.socket.on("pauseHost", () => {
+        //player.onload = player.pause
+        player.pause()
+    })
     props.socket.on("seekHost", ([time]) => {
+        // player.onload = () => {
+        //     currentTime.value = time
+        //     player.currentTime = time
+        // }
         currentTime.value = time
         player.currentTime = time
     })
+    props.socket.emit("remotePlayerJoined")
+
+    player.volume = 0
 } else {
     props.socket.on("play", play)
     props.socket.on("pause", pause)
@@ -73,6 +88,11 @@ if (props.queue.remote) {
         currentTime.value = time
         player.currentTime = time
         props.socket.emit("seekHost", time)
+    })
+    props.socket.on("remotePlayerJoined", () => {
+        props.socket.emit("seekHost", player.currentTime)
+        if (player.paused) props.socket.emit("pauseHost")
+        else props.socket.emit("playHost")
     })
 }
 </script>

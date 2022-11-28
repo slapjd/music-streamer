@@ -70,7 +70,7 @@ export class RemoteMusicQueue extends BaseObservable implements IMusicQueue {
             this.notify()
         })
 
-        this._socket.emit('remoteJoined')
+        this._socket.emit('remoteQueueJoined')
     }
     
 }

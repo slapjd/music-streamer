@@ -143,7 +143,7 @@ export class LocalMusicQueue extends BaseObservable implements IMusicQueue{
             this.trackList = trackList
         })
 
-        this._socket.on('remoteJoined', () => {
+        this._socket.on('remoteQueueJoined', () => {
             this._socket.emit("queueUpdateHost", this.trackList)
             this._socket.emit("changeTrackHost", this.currentTrack, this.preview)
             this._socket.emit("shuffleState", (this.shuffle))
