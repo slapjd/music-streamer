@@ -3,23 +3,33 @@ import { defaultTrack } from "./Interfaces"
 import type { Socket } from "socket.io-client"
 import rng from "../SeededRng/SeededRng"
 import { BaseObservable } from "./BaseObservable"
+import { ObservableList } from "./ObservableList"
 
 export class LocalMusicQueue extends BaseObservable implements IMusicQueue{
+    //TODO: If trackList is appended there will not be a notification. That should probably be fixed but requires lots of boilerplate
     private _shuffleSeed
     private _availableShuffleTracks: ITrack[]
     private _previousStack: ITrack[]
     private _nextStack: ITrack[]
     private _socket: Socket
     private _shuffle: boolean
-    private _currentTrack: ITrack = defaultTrack
+    private _currentTrack: ITrack
+    private _trackList: ObservableList<ITrack>
 
     private get currentTrackIndex() : number {
         return this.trackList.findIndex(track => track.id == this.currentTrack.id)
     }
 
+    
+    public get trackList() : ITrack[] {
+        return this._trackList
+    }
+    
+    public set trackList(v : ITrack[]) {
+        this._trackList.replaceAll(v);
 
-    public trackList: ITrack[]
-
+        this._socket.emit("queueUpdateHost", v)
+    }
     
     public get currentTrack() : ITrack {
         return this._currentTrack
@@ -32,8 +42,8 @@ export class LocalMusicQueue extends BaseObservable implements IMusicQueue{
         if (this._availableShuffleTracks.length < 1) this._availableShuffleTracks = this.trackList.filter(track => !(track.id == this.currentTrack.id))
         this._shuffleSeed++
 
+        //Tell everyone we've changed things
         this.notify()
-
         this._socket.emit("changeTrackHost", v, this.preview)
     }
 
@@ -43,8 +53,8 @@ export class LocalMusicQueue extends BaseObservable implements IMusicQueue{
     public set shuffle(value: boolean) {
         this._shuffle = value
 
+        //Tell everyone we've changed things
         this.notify()
-
         this._socket.emit("shuffleStateHost", value)
     }
 
@@ -54,6 +64,7 @@ export class LocalMusicQueue extends BaseObservable implements IMusicQueue{
         else return this.getNextNoShuffle()
     }
 
+    
     private getNextShuffle(): ITrack {
         return this._availableShuffleTracks[rng.sfc32(rng.cyrb128(this._shuffleSeed.toString())) % this._availableShuffleTracks.length]
     }
@@ -100,7 +111,6 @@ export class LocalMusicQueue extends BaseObservable implements IMusicQueue{
         this.trackList.push(track)
         this._availableShuffleTracks.push(track) //Add new track as available to be shuffled in
 
-        this.notify()
         this._socket.emit("queueUpdateHost", this.trackList)
     }
 
@@ -109,7 +119,6 @@ export class LocalMusicQueue extends BaseObservable implements IMusicQueue{
         this._availableShuffleTracks = this._availableShuffleTracks.filter(existing_track => !(existing_track.id == track.id))
         //TODO: removing current track from queue what do?
 
-        this.notify()
         this._socket.emit("queueUpdateHost", this.trackList)
     }
 
@@ -126,13 +135,14 @@ export class LocalMusicQueue extends BaseObservable implements IMusicQueue{
         this._socket = socket
         this._shuffle = false
         this._currentTrack = defaultTrack
+        this._trackList = new ObservableList<ITrack>()
 
-        this.trackList = []
+        //When trackList changes, we want to notify others
+        //Must be bound to `this` otherwise when trackList calls notify it doesn't know what `this` is for some reason
+        this._trackList.subscribe(this.notify.bind(this))
 
         socket.on("queueUpdate", ([trackList]) => {
             this.trackList = trackList
-            this.notify()
-            socket.emit("queueUpdateHost", trackList)
         })
 
         this._socket.on('remoteJoined', () => {

@@ -1,11 +1,12 @@
 import type { IObservable } from "./Interfaces";
 
 export class BaseObservable implements IObservable {
-    private _subscribedEventListeners: VoidFunction[]
+    private _subscribedEventListeners: VoidFunction[] = []
 
     public notify(): void {
+        if (!this._subscribedEventListeners) return
         this._subscribedEventListeners.forEach((callback) => {
-            callback()
+            if (callback) callback()
         })
     }
 
@@ -15,9 +16,5 @@ export class BaseObservable implements IObservable {
 
     public unsubscribe(callback: VoidFunction): void {
         this._subscribedEventListeners.splice(this._subscribedEventListeners.findIndex((listener) => listener == callback), 1)
-    }
-
-    constructor() {
-        this._subscribedEventListeners = []
     }
 }

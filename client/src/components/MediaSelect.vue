@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import type { Ref } from 'vue';
-import { ref } from 'vue';
-import type { IMusicQueue, ITrack } from '../MusicQueue/Interfaces
+import { ref, shallowRef } from 'vue';
+import type { IMusicQueue, IObservable, ITrack } from '../MusicQueue/Interfaces'
 
 const props = defineProps<{
-    queue: IMusicQueue
+    queue: IMusicQueue & IObservable
 }>()
 const searchText = ref("")
-const searchResults = ref([] as any[])
+const searchResults = shallowRef([] as any[])
 
 enum MenuMode {
     Queue,
@@ -15,7 +15,7 @@ enum MenuMode {
 }
 
 const mode: Ref<MenuMode> = ref(MenuMode.Queue)
-const trackList: Ref<ITrack[]> = ref([])
+const trackList: Ref<ITrack[]> = shallowRef([])
 
 function setMode(newMode: MenuMode) {
     mode.value = newMode
