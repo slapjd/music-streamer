@@ -63,16 +63,16 @@ export class SynchronizedObservableMusicQueueHost extends BaseObservable impleme
 
     public get preview() : ITrack {
         if (this._nextStack.length > 0) return this._nextStack[this._nextStack.length - 1]
-        else if (this.shuffle) return this.getNextShuffle()
-        else return this.getNextNoShuffle()
+        else if (this.shuffle) return this._getNextShuffle()
+        else return this._getNextNoShuffle()
     }
 
     
-    private getNextShuffle(): ITrack {
+    private _getNextShuffle(): ITrack {
         return this._availableShuffleTracks[rng.sfc32(rng.cyrb128(this._shuffleSeed.toString())) % this._availableShuffleTracks.length]
     }
 
-    private getNextNoShuffle(): ITrack {
+    private _getNextNoShuffle(): ITrack {
         return this.trackList[(this.currentTrackIndex + 1) % this.trackList.length]
     }
 
@@ -83,9 +83,9 @@ export class SynchronizedObservableMusicQueueHost extends BaseObservable impleme
             this.currentTrack = this._nextStack.pop()!
         }
         else if (this.shuffle) {
-            this.currentTrack = this.getNextShuffle()
+            this.currentTrack = this._getNextShuffle()
         } else {
-            this.currentTrack = this.getNextNoShuffle()
+            this.currentTrack = this._getNextNoShuffle()
         }
 
         return this.currentTrack
@@ -97,7 +97,7 @@ export class SynchronizedObservableMusicQueueHost extends BaseObservable impleme
         if (this._previousStack.length > 0) {
             this.currentTrack = this._previousStack.pop()!
         } else if (this.shuffle) { //Actually the same as next ironically
-            this.currentTrack = this.getNextShuffle()
+            this.currentTrack = this._getNextShuffle()
         } else {
             this.currentTrack = this.trackList[((this.currentTrackIndex + this.trackList.length) - 1) % this.trackList.length]
         }
