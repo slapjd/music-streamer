@@ -17,7 +17,7 @@ export class SynchronizedObservableMusicQueueHost extends BaseObservable impleme
     private _currentTrack: ITrack
     private _trackList: ObservableList<ITrack>
 
-    private get currentTrackIndex() : number {
+    private get _currentTrackIndex() : number {
         return this.trackList.findIndex(track => track.id == this.currentTrack.id)
     }
 
@@ -73,7 +73,7 @@ export class SynchronizedObservableMusicQueueHost extends BaseObservable impleme
     }
 
     private _getNextNoShuffle(): ITrack {
-        return this.trackList[(this.currentTrackIndex + 1) % this.trackList.length]
+        return this.trackList[(this._currentTrackIndex + 1) % this.trackList.length]
     }
 
     public next(): ITrack {
@@ -99,7 +99,7 @@ export class SynchronizedObservableMusicQueueHost extends BaseObservable impleme
         } else if (this.shuffle) { //Actually the same as next ironically
             this.currentTrack = this._getNextShuffle()
         } else {
-            this.currentTrack = this.trackList[((this.currentTrackIndex + this.trackList.length) - 1) % this.trackList.length]
+            this.currentTrack = this.trackList[((this._currentTrackIndex + this.trackList.length) - 1) % this.trackList.length]
         }
 
         return this.currentTrack
