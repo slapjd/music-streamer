@@ -3,7 +3,7 @@ import type { IObservable } from "@/Observable/IObservable"
 import { defaultTrack } from "./Interfaces"
 import type { Socket } from "socket.io-client"
 import { SeededRng } from "../SeededRng/SeededRng"
-import { ObservableStateManager } from "../Observable/ObservableStateManager"
+import { ObservableStateManager } from "../Observable/ObservableHelper"
 import { ObservableArrayMixin } from "../Observable/ObservableArray"
 import { ObservableAwareShuffler } from "@/SeededRng/Shuffler"
 

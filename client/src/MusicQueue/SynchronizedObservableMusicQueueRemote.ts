@@ -2,7 +2,7 @@ import { type ITrack, type IMusicQueue, defaultTrack } from "./Interfaces"
 import type { IObservable } from "@/Observable/IObservable"
 import type { Socket } from "socket.io-client"
 import { computed, ref, type Ref, type WritableComputedRef } from "vue"
-import { ObservableStateManager } from "../Observable/ObservableStateManager"
+import { ObservableStateManager } from "../Observable/ObservableHelper"
 
 export class SynchronizedObservableMusicQueueRemote extends ObservableStateManager implements IMusicQueue {
     private _socket: Socket

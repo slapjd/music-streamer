@@ -1,9 +1,7 @@
-import { ObservableStateManager, notifyWrapper } from "./ObservableStateManager";
+import { ObservableStateManager, notifyWrapper } from "./ObservableHelper";
 import type { IObservable } from "./IObservable";
 import type { ITrack } from "@/MusicQueue/Interfaces";
-
-type GConstructor<T = any> = new (...args: any[]) => T;
-type Arrayable<T> = GConstructor<Array<T>>
+import type { Arrayable, GConstructor } from "@/MixinHelp/MixinHelp";
 
 export function ObservableArrayMixin<T, TBase extends Arrayable<T>>(Base: TBase) {
     return class ObservableArray extends Base implements IObservable {
@@ -28,7 +26,7 @@ export function ObservableArrayMixin<T, TBase extends Arrayable<T>>(Base: TBase)
         //The binding is required otherwise everything is thrown out of whack because higher-order nonsense
         override pop = notifyWrapper(super.pop.bind(this), this.notify.bind(this))
         override push = notifyWrapper(super.push.bind(this), this.notify.bind(this))
-        override reverse = notifyWrapper(super.reverse.bind(this) as () => this, this.notify.bind(this)) //reverse does actually return `this`
+        override reverse = notifyWrapper(super.reverse.bind(this), this.notify.bind(this)) //reverse does actually return `this`
         override shift = notifyWrapper(super.shift.bind(this), this.notify.bind(this))
         override sort = notifyWrapper(super.sort.bind(this), this.notify.bind(this))
         override splice = notifyWrapper(super.splice.bind(this), this.notify.bind(this))
