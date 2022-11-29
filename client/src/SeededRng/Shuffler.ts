@@ -1,4 +1,4 @@
-import type { ObservableList } from "@/Observable/ObservableList";
+import type { ObservableList } from "@/Observable/ObservableArray";
 import type { SeededRng } from "@/SeededRng/SeededRng";
 
 export class Shuffler<T> {

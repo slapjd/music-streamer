@@ -4,8 +4,10 @@ import { defaultTrack } from "./Interfaces"
 import type { Socket } from "socket.io-client"
 import { SeededRng } from "../SeededRng/SeededRng"
 import { ObservableStateManager } from "../Observable/ObservableStateManager"
-import { ObservableList } from "../Observable/ObservableList"
+import { ObservableArrayMixin } from "../Observable/ObservableArray"
 import { ObservableAwareShuffler } from "@/SeededRng/Shuffler"
+
+class TrackList extends ObservableArrayMixin(Array<ITrack>) {}
 
 export class SynchronizedObservableMusicQueueHost extends ObservableStateManager implements IMusicQueue{
     //TODO: If trackList is appended there will not be a notification. That should probably be fixed but requires lots of boilerplate
@@ -16,7 +18,7 @@ export class SynchronizedObservableMusicQueueHost extends ObservableStateManager
     private _socket: Socket
     private _shuffle: boolean
     private _currentTrack: ITrack
-    private _trackList: ObservableList<ITrack>
+    private _trackList: TrackList
 
     private get _currentTrackIndex() : number {
         return this.trackList.findIndex(track => track.id == this.currentTrack.id)
@@ -117,7 +119,7 @@ export class SynchronizedObservableMusicQueueHost extends ObservableStateManager
         this._socket = socket
         this._shuffle = false
         this._currentTrack = defaultTrack
-        this._trackList = new ObservableList<ITrack>()
+        this._trackList = new TrackList()
         this._shuffler = new ObservableAwareShuffler(this._trackList, this._rng)
 
         //When trackList changes, we want to notify others
