@@ -1,4 +1,4 @@
-import type { IObservable } from "./Interfaces";
+import type { IObservable } from "../Observable/IObservable";
 
 export class BaseObservable implements IObservable {
     private _subscribedEventListeners: VoidFunction[]

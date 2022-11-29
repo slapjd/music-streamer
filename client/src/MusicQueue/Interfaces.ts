@@ -24,12 +24,6 @@ export const defaultTrack: ITrack = {
     }
 }
 
-export interface IObservable {
-    subscribe(callback: VoidFunction): void
-    unsubscribe(callback: VoidFunction): void
-    notify(): void
-}
-
 export interface IMusicQueue {
     currentTrack: ITrack
     trackList: ITrack[]

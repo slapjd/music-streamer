@@ -1,5 +1,5 @@
 import { BaseObservable } from "./BaseObservable";
-import type { IObservable } from "./Interfaces";
+import type { IObservable } from "./IObservable";
 
 //TODO: avoid reimplementing BaseObservable if at all possible (while also not reimplementing most of Array)
 export class ObservableList<T> extends Array<T> implements IObservable{

@@ -1,9 +1,10 @@
-import type { ITrack, IMusicQueue, IObservable } from "./Interfaces"
+import type { ITrack, IMusicQueue } from "./Interfaces"
+import type { IObservable } from "@/Observable/IObservable"
 import { defaultTrack } from "./Interfaces"
 import type { Socket } from "socket.io-client"
 import rng from "../SeededRng/SeededRng"
-import { BaseObservable } from "./BaseObservable"
-import { ObservableList } from "./ObservableList"
+import { BaseObservable } from "../Observable/BaseObservable"
+import { ObservableList } from "../Observable/ObservableList"
 
 export class LocalMusicQueue extends BaseObservable implements IMusicQueue{
     //TODO: If trackList is appended there will not be a notification. That should probably be fixed but requires lots of boilerplate

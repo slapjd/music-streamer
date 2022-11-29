@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import SpeakerIcon from './icons/IconSpeaker.vue'
-import type { IMusicQueue, IObservable, ITrack } from '../MusicQueue/Interfaces'
+import type { IMusicQueue, ITrack } from '../MusicQueue/Interfaces'
+import type { IObservable } from '@/Observable/IObservable'
 import { ref, type Ref } from 'vue'
 import { defaultTrack } from '../MusicQueue/Interfaces'
 import type { Socket } from 'socket.io-client';

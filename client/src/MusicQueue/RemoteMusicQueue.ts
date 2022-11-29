@@ -1,7 +1,8 @@
-import { type ITrack, type IMusicQueue, defaultTrack, type IObservable } from "./Interfaces"
+import { type ITrack, type IMusicQueue, defaultTrack } from "./Interfaces"
+import type { IObservable } from "@/Observable/IObservable"
 import type { Socket } from "socket.io-client"
 import { computed, ref, type Ref, type WritableComputedRef } from "vue"
-import { BaseObservable } from "./BaseObservable"
+import { BaseObservable } from "../Observable/BaseObservable"
 
 export class RemoteMusicQueue extends BaseObservable implements IMusicQueue {
     private _socket: Socket
