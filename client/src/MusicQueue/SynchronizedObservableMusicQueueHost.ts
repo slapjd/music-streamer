@@ -5,11 +5,12 @@ import type { Socket } from "socket.io-client"
 import { SeededRng } from "../SeededRng/SeededRng"
 import { BaseObservable } from "../Observable/BaseObservable"
 import { ObservableList } from "../Observable/ObservableList"
+import { ObservableAwareShuffler } from "@/SeededRng/Shuffler"
 
 export class SynchronizedObservableMusicQueueHost extends BaseObservable implements IMusicQueue{
     //TODO: If trackList is appended there will not be a notification. That should probably be fixed but requires lots of boilerplate
     private _rng: SeededRng
-    private _availableShuffleTracks: ITrack[]
+    private _shuffler: ObservableAwareShuffler<ITrack>
     private _previousStack: ITrack[]
     private _nextStack: ITrack[]
     private _socket: Socket
@@ -40,10 +41,6 @@ export class SynchronizedObservableMusicQueueHost extends BaseObservable impleme
     public set currentTrack(v : ITrack) {
         this._currentTrack = v;
 
-        //Shuffle magic (attempts not to repeat tracks too much)
-        this._availableShuffleTracks = this._availableShuffleTracks.filter(track => !(track.id == this.currentTrack.id))
-        if (this._availableShuffleTracks.length < 1) this._availableShuffleTracks = this.trackList.filter(track => !(track.id == this.currentTrack.id))
-
         //Tell everyone we've changed things
         this.notify()
         this._socket.emit("changeTrackHost", v, this.preview)
@@ -62,13 +59,8 @@ export class SynchronizedObservableMusicQueueHost extends BaseObservable impleme
 
     public get preview() : ITrack {
         if (this._nextStack.length > 0) return this._nextStack[this._nextStack.length - 1]
-        else if (this.shuffle) return this._getShuffle(this._rng.peek())
+        else if (this.shuffle) return this._shuffler.peek()
         else return this._getNextNoShuffle()
-    }
-
-    //TODO: Getter?
-    private _getShuffle(index: number) {
-        return this._availableShuffleTracks[index % this._availableShuffleTracks.length]
     }
 
     private _getNextNoShuffle(): ITrack {
@@ -82,7 +74,7 @@ export class SynchronizedObservableMusicQueueHost extends BaseObservable impleme
             this.currentTrack = this._nextStack.pop()!
         }
         else if (this.shuffle) {
-            this.currentTrack = this._getShuffle(this._rng.next())
+            this.currentTrack = this._shuffler.next()
         } else {
             this.currentTrack = this._getNextNoShuffle()
         }
@@ -96,7 +88,7 @@ export class SynchronizedObservableMusicQueueHost extends BaseObservable impleme
         if (this._previousStack.length > 0) {
             this.currentTrack = this._previousStack.pop()!
         } else if (this.shuffle) { //Actually the same as next ironically
-            this.currentTrack = this._getShuffle(this._rng.next())
+            this.currentTrack = this._shuffler.next()
         } else {
             this.currentTrack = this.trackList[((this._currentTrackIndex + this.trackList.length) - 1) % this.trackList.length]
         }
@@ -106,12 +98,10 @@ export class SynchronizedObservableMusicQueueHost extends BaseObservable impleme
 
     public add(track: ITrack): void {
         this.trackList.push(track)
-        this._availableShuffleTracks.push(track) //Add new track as available to be shuffled in
     }
 
     public remove(track: ITrack): void {
         this.trackList = this.trackList.filter(existing_track => !(existing_track.id == track.id))
-        this._availableShuffleTracks = this._availableShuffleTracks.filter(existing_track => !(existing_track.id == track.id))
         //TODO: removing current track from queue what do?
     }
 
@@ -122,13 +112,13 @@ export class SynchronizedObservableMusicQueueHost extends BaseObservable impleme
     constructor(socket: Socket) {
         super()
         this._rng = new SeededRng()
-        this._availableShuffleTracks = []
         this._previousStack = []
         this._nextStack = []
         this._socket = socket
         this._shuffle = false
         this._currentTrack = defaultTrack
         this._trackList = new ObservableList<ITrack>()
+        this._shuffler = new ObservableAwareShuffler(this._trackList, this._rng)
 
         //When trackList changes, we want to notify others
         //Must be bound to `this` otherwise when trackList calls notify it doesn't know what `this` is for some reason
