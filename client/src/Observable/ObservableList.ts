@@ -13,20 +13,9 @@ export class ObservableList<T> extends Array<T> implements IObservable{
     //The binding is required otherwise everything is thrown out of whack because higher-order nonsense
     override pop = notifyWrapper(super.pop.bind(this), this.notify.bind(this))
     override push = notifyWrapper(super.push.bind(this), this.notify.bind(this))
-    override reverse(): this {
-        //Not using notifywrapper because it returns a reference to itself
-        //And i'm not sure that works with the wrapper (it *might* return some wacky superclass)
-        super.reverse()
-        this.notify()
-        return this
-    }
+    override reverse = notifyWrapper(super.reverse.bind(this) as () => this, this.notify.bind(this)) //reverse does actually return `this`
     override shift = notifyWrapper(super.shift.bind(this), this.notify.bind(this))
-    override sort(compareFn?: ((a: T, b: T) => number) | undefined): this {
-        //See reverse()'s comment
-        super.sort(compareFn)
-        this.notify()
-        return this
-    }
+    override sort = notifyWrapper(super.sort.bind(this), this.notify.bind(this))
     override splice = notifyWrapper(super.splice.bind(this), this.notify.bind(this))
     override unshift = notifyWrapper(super.unshift.bind(this), this.notify.bind(this))
 
