@@ -1,4 +1,4 @@
-import type { IObservable } from "../Observable/IObservable";
+import type { IObservable } from "./IObservable";
 
 export function notifyWrapper<F extends (...args: any[]) => any>(fn: F, notify: VoidFunction) {
     return (...args: Parameters<F>): ReturnType<F> => {
@@ -19,7 +19,7 @@ export function notifyWrapper<F extends (...args: any[]) => any>(fn: F, notify: 
     }
 }
 
-export class BaseObservable implements IObservable {
+export class ObservableStateManager implements IObservable {
     private _subscribedEventListeners: VoidFunction[]
 
     public notify(): void {

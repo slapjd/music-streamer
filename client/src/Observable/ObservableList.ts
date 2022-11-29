@@ -1,31 +1,13 @@
-import { BaseObservable, notifyWrapper } from "./BaseObservable";
+import { ObservableStateManager, notifyWrapper } from "./ObservableStateManager";
 import type { IObservable } from "./IObservable";
 
 //TODO: avoid reimplementing BaseObservable if at all possible (while also not reimplementing most of Array)
 export class ObservableList<T> extends Array<T> implements IObservable{
-    private _subscribedEventListeners: VoidFunction[]
+    private _observableStateManager: ObservableStateManager = new ObservableStateManager() //Initialized here so we can use it in our declarations
 
-    constructor() {
-        super()
-        this._subscribedEventListeners = []
-    }
-
-    
-    //Observable requirements
-    notify(): void {
-        this._subscribedEventListeners.forEach((callback) => {
-            if (callback) callback()
-        })
-    }
-
-    subscribe(callback: VoidFunction) {
-        this._subscribedEventListeners.push(callback)
-    }
-
-    unsubscribe(callback: VoidFunction): void {
-        this._subscribedEventListeners.splice(this._subscribedEventListeners.findIndex((listener) => listener == callback), 1)
-    }
-
+    notify = this._observableStateManager.notify
+    subscribe = this._observableStateManager.subscribe
+    unsubscribe = this._observableStateManager.unsubscribe
 
     //Array overrides
     //The binding is required otherwise everything is thrown out of whack because higher-order nonsense

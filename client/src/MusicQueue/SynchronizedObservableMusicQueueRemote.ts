@@ -2,9 +2,9 @@ import { type ITrack, type IMusicQueue, defaultTrack } from "./Interfaces"
 import type { IObservable } from "@/Observable/IObservable"
 import type { Socket } from "socket.io-client"
 import { computed, ref, type Ref, type WritableComputedRef } from "vue"
-import { BaseObservable } from "../Observable/BaseObservable"
+import { ObservableStateManager } from "../Observable/ObservableStateManager"
 
-export class SynchronizedObservableMusicQueueRemote extends BaseObservable implements IMusicQueue {
+export class SynchronizedObservableMusicQueueRemote extends ObservableStateManager implements IMusicQueue {
     private _socket: Socket
     private _currentTrack: ITrack = defaultTrack
     private _shuffle = false //Cached value. Updates when websocket says to

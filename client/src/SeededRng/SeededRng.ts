@@ -46,5 +46,3 @@ export class SeededRng {
         this._state = seed
     }
 }
-
-export default {cyrb128, sfc32, SeededRng}

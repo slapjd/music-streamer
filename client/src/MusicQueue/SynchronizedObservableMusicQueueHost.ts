@@ -3,11 +3,11 @@ import type { IObservable } from "@/Observable/IObservable"
 import { defaultTrack } from "./Interfaces"
 import type { Socket } from "socket.io-client"
 import { SeededRng } from "../SeededRng/SeededRng"
-import { BaseObservable } from "../Observable/BaseObservable"
+import { ObservableStateManager } from "../Observable/ObservableStateManager"
 import { ObservableList } from "../Observable/ObservableList"
 import { ObservableAwareShuffler } from "@/SeededRng/Shuffler"
 
-export class SynchronizedObservableMusicQueueHost extends BaseObservable implements IMusicQueue{
+export class SynchronizedObservableMusicQueueHost extends ObservableStateManager implements IMusicQueue{
     //TODO: If trackList is appended there will not be a notification. That should probably be fixed but requires lots of boilerplate
     private _rng: SeededRng
     private _shuffler: ObservableAwareShuffler<ITrack>
