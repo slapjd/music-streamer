@@ -4,7 +4,7 @@ import type { Socket } from "socket.io-client"
 import { computed, ref, type Ref, type WritableComputedRef } from "vue"
 import { BaseObservable } from "../Observable/BaseObservable"
 
-export class RemoteMusicQueue extends BaseObservable implements IMusicQueue {
+export class SynchronizedObservableMusicQueueRemote extends BaseObservable implements IMusicQueue {
     private _socket: Socket
     private _currentTrack: ITrack = defaultTrack
     private _shuffle = false //Cached value. Updates when websocket says to
@@ -33,7 +33,6 @@ export class RemoteMusicQueue extends BaseObservable implements IMusicQueue {
     }
     
 
-    public playbackComplete(): void {} //We don't *really* give a shit because host controls auto track changes
     public next(): void {
         this._socket.emit("next")
     }

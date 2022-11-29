@@ -6,7 +6,7 @@ import rng from "../SeededRng/SeededRng"
 import { BaseObservable } from "../Observable/BaseObservable"
 import { ObservableList } from "../Observable/ObservableList"
 
-export class LocalMusicQueue extends BaseObservable implements IMusicQueue{
+export class SynchronizedObservableMusicQueueHost extends BaseObservable implements IMusicQueue{
     //TODO: If trackList is appended there will not be a notification. That should probably be fixed but requires lots of boilerplate
     private _shuffleSeed
     private _availableShuffleTracks: ITrack[]
@@ -74,11 +74,6 @@ export class LocalMusicQueue extends BaseObservable implements IMusicQueue{
 
     private getNextNoShuffle(): ITrack {
         return this.trackList[(this.currentTrackIndex + 1) % this.trackList.length]
-    }
-
-
-    public playbackComplete(): void {
-        this.next()
     }
 
     public next(): ITrack {
