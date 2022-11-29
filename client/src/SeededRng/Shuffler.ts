@@ -11,10 +11,20 @@ export class Shuffler<T> {
         this._filteredItems = this.items.filter((track) => track !== this._lastItem)
     }
 
+    /**
+     * Retrieves the next item picked by shuffling.
+     * Does not modify internal state
+     * @returns Next item
+     */
     peek(): T {
         return this._filteredItems[this._rng.peek() % this._filteredItems.length]
     }
 
+    /**
+     * Retrieves the next item picked by shuffling.
+     * Modifies internal state
+     * @returns Next item
+     */
     next(): T {
         const output = this._filteredItems[this._rng.next() % this._filteredItems.length]
 
