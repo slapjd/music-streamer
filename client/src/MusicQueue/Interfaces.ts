@@ -37,3 +37,7 @@ export interface IMusicQueue {
     remove(_: ITrack): void
     select(_: ITrack): void
 }
+
+export enum MusicQueueEvents {
+    
+}

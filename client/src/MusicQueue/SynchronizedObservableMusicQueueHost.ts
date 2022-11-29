@@ -2,13 +2,13 @@ import type { ITrack, IMusicQueue } from "./Interfaces"
 import type { IObservable } from "@/Observable/IObservable"
 import { defaultTrack } from "./Interfaces"
 import type { Socket } from "socket.io-client"
-import rng from "../SeededRng/SeededRng"
+import { SeededRng } from "../SeededRng/SeededRng"
 import { BaseObservable } from "../Observable/BaseObservable"
 import { ObservableList } from "../Observable/ObservableList"
 
 export class SynchronizedObservableMusicQueueHost extends BaseObservable implements IMusicQueue{
     //TODO: If trackList is appended there will not be a notification. That should probably be fixed but requires lots of boilerplate
-    private _shuffleSeed
+    private _rng: SeededRng
     private _availableShuffleTracks: ITrack[]
     private _previousStack: ITrack[]
     private _nextStack: ITrack[]
@@ -43,7 +43,6 @@ export class SynchronizedObservableMusicQueueHost extends BaseObservable impleme
         //Shuffle magic (attempts not to repeat tracks too much)
         this._availableShuffleTracks = this._availableShuffleTracks.filter(track => !(track.id == this.currentTrack.id))
         if (this._availableShuffleTracks.length < 1) this._availableShuffleTracks = this.trackList.filter(track => !(track.id == this.currentTrack.id))
-        this._shuffleSeed++
 
         //Tell everyone we've changed things
         this.notify()
@@ -63,13 +62,13 @@ export class SynchronizedObservableMusicQueueHost extends BaseObservable impleme
 
     public get preview() : ITrack {
         if (this._nextStack.length > 0) return this._nextStack[this._nextStack.length - 1]
-        else if (this.shuffle) return this._getNextShuffle()
+        else if (this.shuffle) return this._getShuffle(this._rng.peek())
         else return this._getNextNoShuffle()
     }
 
-    
-    private _getNextShuffle(): ITrack {
-        return this._availableShuffleTracks[rng.sfc32(rng.cyrb128(this._shuffleSeed.toString())) % this._availableShuffleTracks.length]
+    //TODO: Getter?
+    private _getShuffle(index: number) {
+        return this._availableShuffleTracks[index % this._availableShuffleTracks.length]
     }
 
     private _getNextNoShuffle(): ITrack {
@@ -83,7 +82,7 @@ export class SynchronizedObservableMusicQueueHost extends BaseObservable impleme
             this.currentTrack = this._nextStack.pop()!
         }
         else if (this.shuffle) {
-            this.currentTrack = this._getNextShuffle()
+            this.currentTrack = this._getShuffle(this._rng.next())
         } else {
             this.currentTrack = this._getNextNoShuffle()
         }
@@ -97,7 +96,7 @@ export class SynchronizedObservableMusicQueueHost extends BaseObservable impleme
         if (this._previousStack.length > 0) {
             this.currentTrack = this._previousStack.pop()!
         } else if (this.shuffle) { //Actually the same as next ironically
-            this.currentTrack = this._getNextShuffle()
+            this.currentTrack = this._getShuffle(this._rng.next())
         } else {
             this.currentTrack = this.trackList[((this._currentTrackIndex + this.trackList.length) - 1) % this.trackList.length]
         }
@@ -122,7 +121,7 @@ export class SynchronizedObservableMusicQueueHost extends BaseObservable impleme
 
     constructor(socket: Socket) {
         super()
-        this._shuffleSeed = new Date().getTime()
+        this._rng = new SeededRng()
         this._availableShuffleTracks = []
         this._previousStack = []
         this._nextStack = []

@@ -29,4 +29,22 @@ function sfc32(seed: number[]): number {
     return (t >>> 0) / 4294967296;
 }
 
-export default {cyrb128, sfc32}
+export class SeededRng {
+    private _state: number
+
+    peek(): number {
+        return sfc32(cyrb128(this._state.toString()))
+    }
+
+    next(): number {
+        const output = this.peek()
+        this._state++
+        return output
+    }
+
+    constructor(seed = Date.now()) {
+        this._state = seed
+    }
+}
+
+export default {cyrb128, sfc32, SeededRng}
