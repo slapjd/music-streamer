@@ -18,7 +18,7 @@ interface QueueUpdateEvent {
 }
 
 export class SynchronizedObservableMusicQueue extends MusicQueue {
-    protected _socket: Socket
+    protected readonly _socket: Socket
     
     protected _changeTrackDispatcher: EventDispatcher<ChangeTrackEvent>
     onChangeTrack(handler: Handler<ChangeTrackEvent>) {
@@ -38,15 +38,17 @@ export class SynchronizedObservableMusicQueue extends MusicQueue {
 
     constructor(socket: Socket) {
         super()
+        //Init new stuff
         this._socket = socket
-
         this._changeTrackDispatcher = new EventDispatcher()
         this._queueUpdateDispatcher = new EventDispatcher()
 
+        //fire queue update whenever _tracks changes
         this._tracks.subscribe(() => {
             this._queueUpdateDispatcher.fire({queue: this._tracks})
         })
 
+        //Emit queueupdate whenever queue updates (unless this was done by a socket)
         const emitUpdateQueue: Handler<QueueUpdateEvent> = (({queue}: QueueUpdateEvent) => {
             this._socket.emit("queueUpdate", queue)
         }).bind(this)
@@ -57,6 +59,7 @@ export class SynchronizedObservableMusicQueue extends MusicQueue {
             this.onQueueUpdate(emitUpdateQueue)
         })
 
+        //Emit changetrack whenever track changes (unless this was done by a socket)
         const emitChangeTrack: Handler<ChangeTrackEvent> = (({current, next, nextStack, previousStack}: ChangeTrackEvent) => {
             this._socket.emit("changeTrack", current, next, nextStack, previousStack)
         }).bind(this)
