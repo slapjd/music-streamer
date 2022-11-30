@@ -25,15 +25,19 @@ export const defaultTrack: ITrack = {
 }
 
 export interface IMusicQueue {
-    currentTrack: ITrack
-    trackList: ITrack[]
-    shuffle: boolean
-    readonly preview: ITrack
-    readonly remote: boolean
+    readonly currentTrack: ITrack
 
-    next(): void
-    previous(): void
-    add(_: ITrack): void
-    remove(_: ITrack): void
-    select(_: ITrack): void
+    shuffle: boolean
+
+    peek(): ITrack
+    next(): ITrack
+    previous(): ITrack
+    add(track: ITrack): void
+    remove(track: ITrack): void
+    select(track: ITrack): void
+}
+
+export interface IObservableMusicQueue extends IMusicQueue {
+    onnext(): void
+    onprevious(): void
 }

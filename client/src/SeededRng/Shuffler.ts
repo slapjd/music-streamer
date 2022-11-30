@@ -1,14 +1,21 @@
-import type { ObservableList } from "@/Observable/ObservableArray";
 import type { SeededRng } from "@/SeededRng/SeededRng";
 
 export class Shuffler<T> {
     protected readonly _rng: SeededRng
-    protected readonly items: T[]
-    protected _filteredItems: T[]
-    protected _lastItem?: T
+    protected _items: T[]
+    protected _blacklistedItems: T[]
 
-    protected _reset(): void {
-        this._filteredItems = this.items.filter((track) => track !== this._lastItem)
+    protected get _filteredItems(): T[] {
+        var output = this._items.filter((item) => !this._blacklistedItems.includes(item))
+        if (output.length < 1) {
+            if (this._blacklistedItems.length > 1) {
+                this._blacklistedItems.splice(0, this._blacklistedItems.length - 1) //Delete all except last
+                output = this._items.filter((item) => !this._blacklistedItems.includes(item))
+            } else {
+                output = [...this._items]
+            }
+        }
+        return output
     }
 
     /**
@@ -28,26 +35,25 @@ export class Shuffler<T> {
     next(): T {
         const output = this._filteredItems[this._rng.next() % this._filteredItems.length]
 
-        //Length <=1 means we just picked the last track so we need to reset the available tracks
-        if (this._filteredItems.length <= 1) this._reset()
-        else this._filteredItems = this._filteredItems.filter((track) => track !== output)
-        
-        this._lastItem = output
+        //TODO: Decide on whether i want next() to update the filtered list on its own
+        this.update(output)
 
         return output
     }
 
+    update(item: T) {
+        if (!this._blacklistedItems.includes(item)) {
+            this._blacklistedItems.push(item)
+        }
+    }
+
+    updateItemsReference(items: T[]) {
+        this._items = items
+    }
+
     constructor(items: T[], rng: SeededRng) {
         this._rng = rng
-        this.items = items
-        this._filteredItems = [...items] //Actual copy
-    }
-}
-
-export class ObservableAwareShuffler<T> extends Shuffler<T> {
-    constructor(items: ObservableList<T>, rng: SeededRng) {
-        super(items, rng)
-
-        items.subscribe(this._reset.bind(this))
+        this._items = items
+        this._blacklistedItems = []
     }
 }

@@ -21,7 +21,7 @@ export class SynchronizedObservableMusicQueueHost extends ObservableStateManager
     private _trackList: TrackList
 
     private get _currentTrackIndex() : number {
-        return this.trackList.findIndex(track => track.id == this.currentTrack.id)
+        return this.trackList.findIndex(track => track.id == this._currentTrack.id)
     }
 
 
@@ -37,10 +37,10 @@ export class SynchronizedObservableMusicQueueHost extends ObservableStateManager
         this._socket.emit("queueUpdateHost", v)
     }
     
-    public get currentTrack() : ITrack {
+    public get _currentTrack() : ITrack {
         return this._currentTrack
     }
-    public set currentTrack(v : ITrack) {
+    public set _currentTrack(v : ITrack) {
         this._currentTrack = v;
 
         //Tell everyone we've changed things
@@ -70,32 +70,32 @@ export class SynchronizedObservableMusicQueueHost extends ObservableStateManager
     }
 
     public next(): ITrack {
-        this._previousStack.push(this.currentTrack)
+        this._previousStack.push(this._currentTrack)
 
         if (this._nextStack.length > 0) {
-            this.currentTrack = this._nextStack.pop()!
+            this._currentTrack = this._nextStack.pop()!
         }
         else if (this.shuffle) {
-            this.currentTrack = this._shuffler.next()
+            this._currentTrack = this._shuffler.next()
         } else {
-            this.currentTrack = this._getNextNoShuffle()
+            this._currentTrack = this._getNextNoShuffle()
         }
 
-        return this.currentTrack
+        return this._currentTrack
     }
 
     public previous(): ITrack {
-        this._nextStack.push(this.currentTrack)
+        this._nextStack.push(this._currentTrack)
 
         if (this._previousStack.length > 0) {
-            this.currentTrack = this._previousStack.pop()!
+            this._currentTrack = this._previousStack.pop()!
         } else if (this.shuffle) { //Actually the same as next ironically
-            this.currentTrack = this._shuffler.next()
+            this._currentTrack = this._shuffler.next()
         } else {
-            this.currentTrack = this.trackList[((this._currentTrackIndex + this.trackList.length) - 1) % this.trackList.length]
+            this._currentTrack = this.trackList[((this._currentTrackIndex + this.trackList.length) - 1) % this.trackList.length]
         }
 
-        return this.currentTrack
+        return this._currentTrack
     }
 
     public add(track: ITrack): void {
@@ -108,7 +108,7 @@ export class SynchronizedObservableMusicQueueHost extends ObservableStateManager
     }
 
     public select(track: ITrack): void {
-        this.currentTrack = track //Set new track
+        this._currentTrack = track //Set new track
     }
 
     constructor(socket: Socket) {
@@ -132,12 +132,12 @@ export class SynchronizedObservableMusicQueueHost extends ObservableStateManager
 
         this._socket.on('remoteQueueJoined', () => {
             this._socket.emit("queueUpdateHost", this.trackList)
-            this._socket.emit("changeTrackHost", this.currentTrack, this.preview)
+            this._socket.emit("changeTrackHost", this._currentTrack, this.preview)
             this._socket.emit("shuffleState", (this.shuffle))
         })
 
         socket.on("changeTrack", ([current]) => {
-            this.currentTrack = current
+            this._currentTrack = current
         })
 
         socket.on("shuffleState", ([shuffle]) => {
