@@ -17,15 +17,27 @@ interface QueueUpdateEvent {
     queue: ITrack[]
 }
 
+/**
+ * Extension of `MusicQueue` which synchronizes its state with other music queues over a websocket.
+ * As a bonus it also has events you can subscribe to when changes happen to said queue
+ */
 export class SynchronizedObservableMusicQueue extends MusicQueue {
     protected readonly _socket: Socket
     
     protected _changeTrackDispatcher: EventDispatcher<ChangeTrackEvent>
+    /**
+     * Registers a callback to be called when the current track changes
+     * @param handler Function to call when track changes
+     */
     onChangeTrack(handler: Handler<ChangeTrackEvent>) {
         this._changeTrackDispatcher.register(handler)
     }
 
     protected _queueUpdateDispatcher: EventDispatcher<QueueUpdateEvent>
+    /**
+     * Registers a callback to call when the queue updates (track added, removed, etc.)
+     * @param handler Function to call when queue is changed
+     */
     onQueueUpdate(handler: Handler<QueueUpdateEvent>) {
         this._queueUpdateDispatcher.register(handler)
     }

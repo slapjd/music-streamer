@@ -2,6 +2,11 @@ import type { ITrack } from "@/MusicQueue/Interfaces";
 import { functionComposer, type Arrayable, type GConstructor } from "@/MixinHelper/MixinHelper";
 import { EventDispatcher, type Handler } from "@/EventHelper/EventHelper";
 
+/**
+ * Works the same as a regular array, except you can register a callback whenever its contents are changed.
+ * WARNING: if you re-assign whatever variable you use for this, it *will* lose all its callbacks.
+ * using `readonly` or `const` is *extremely* advised
+ */
 export class ObservableArray<T> extends Array<T> {
     private _eventDispatcher: EventDispatcher<void> = new EventDispatcher() //It's easier to init this here
     onArrayChanged(handler: Handler<void>) {

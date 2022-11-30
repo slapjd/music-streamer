@@ -26,7 +26,6 @@ export const defaultTrack: ITrack = {
 
 export interface IMusicQueue {
     readonly currentTrack: ITrack
-
     shuffle: boolean
 
     peek(): ITrack
@@ -35,9 +34,4 @@ export interface IMusicQueue {
     add(track: ITrack): void
     remove(track: ITrack): void
     select(track: ITrack): void
-}
-
-export interface IObservableMusicQueue extends IMusicQueue {
-    onnext(): void
-    onprevious(): void
 }
