@@ -2,12 +2,10 @@ import type { IMusicQueue, ITrack } from "./Interfaces";
 import { defaultTrack } from "./Interfaces";
 import { Shuffler } from "@/SeededRng/Shuffler";
 import { SeededRng } from "@/SeededRng/SeededRng";
-import { ObservableArrayMixin } from "@/Observable/ObservableArray";
-
-class ObservableTrackArray extends ObservableArrayMixin(Array<ITrack>) {}
+import { ObservableArray } from "@/Observable/ObservableArray";
 
 export class MusicQueue implements IMusicQueue {
-    protected readonly _tracks: ObservableTrackArray //Observable is a secret tool that'll help us later
+    protected readonly _tracks: ObservableArray<ITrack> //Observable is a secret tool that'll help us later
     private _currentTrack: ITrack;
 
     protected _rng: SeededRng
@@ -71,7 +69,7 @@ export class MusicQueue implements IMusicQueue {
     
     constructor() {
         this._rng = new SeededRng()
-        this._tracks = new ObservableTrackArray()
+        this._tracks = new ObservableArray<ITrack>()
         this._trackShuffler = new Shuffler<ITrack>(this._tracks, this._rng) //_tracks is passed by reference and so shuffler will update automatically
 
         this._currentTrack = defaultTrack

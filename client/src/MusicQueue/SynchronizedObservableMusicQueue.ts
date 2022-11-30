@@ -1,5 +1,5 @@
 import type { MusicQueueable } from "@/MixinHelper/MixinHelper";
-import { ObservableArrayMixin } from "@/Observable/ObservableArray";
+import { ObservableArray } from "@/Observable/ObservableArray";
 import { Shuffler } from "@/SeededRng/Shuffler";
 import type { Socket } from "socket.io-client";
 import type { ITrack } from "./Interfaces";
@@ -44,7 +44,7 @@ export class SynchronizedObservableMusicQueue extends MusicQueue {
         this._queueUpdateDispatcher = new EventDispatcher()
 
         //fire queue update whenever _tracks changes
-        this._tracks.subscribe(() => {
+        this._tracks.onArrayChanged(() => {
             this._queueUpdateDispatcher.fire({queue: this._tracks})
         })
 
