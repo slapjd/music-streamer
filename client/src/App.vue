@@ -19,6 +19,7 @@ socket.onAny((event, args) => {
 const queue = shallowRef() //MusicQueue is observable so we don't need deep reactivity. We only need to know if we changed between local and remote
 
 queue.value = new SynchronizedObservableMusicQueue(socket)
+//TODO: custom player is what actually needs to be host-aware
 
 </script>
 
