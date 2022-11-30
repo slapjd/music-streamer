@@ -44,6 +44,7 @@ export class SynchronizedObservableMusicQueue extends MusicQueue {
         this._queueUpdateDispatcher = new EventDispatcher()
 
         //fire queue update whenever _tracks changes
+        //told you that tool would help us later
         this._tracks.onArrayChanged(() => {
             this._queueUpdateDispatcher.fire({queue: this._tracks})
         })
