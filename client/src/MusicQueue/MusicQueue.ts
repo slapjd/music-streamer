@@ -5,7 +5,8 @@ import { SeededRng } from "@/SeededRng/SeededRng";
 import { ObservableArray } from "@/Observable/ObservableArray";
 
 /**
- * Music queue with shuffle support
+ * Music queue with shuffle support.
+ * Probably not the most useful for this app but it's implemented separately so it's easier to read
  */
 export class MusicQueue implements IMusicQueue {
     private _currentTrack: ITrack;
