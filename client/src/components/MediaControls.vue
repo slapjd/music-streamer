@@ -5,11 +5,11 @@ import { ref, type Ref, shallowRef } from 'vue'
 import { defaultTrack } from '../MusicQueue/Interfaces'
 import type { Socket } from 'socket.io-client';
 import type { SynchronizedObservableMusicQueue } from '@/MusicQueue/SynchronizedObservableMusicQueue';
-import type { AudioPlayer } from '@/CustomAudioPlayer/AudioPlayer';
+import type { SynchronizedAudioPlayer } from '@/CustomAudioPlayer/AudioPlayer';
 
 const props = defineProps<{
     queue: SynchronizedObservableMusicQueue,
-    player: AudioPlayer
+    player: SynchronizedAudioPlayer
 }>()
 
 const maxTime = ref(0)
@@ -19,16 +19,16 @@ const volume = ref(50)
 const currentTrack: Ref<ITrack> = shallowRef(defaultTrack)
 
 function seek(time: number) {
-    props.player.seek(time)
+    props.player.currentTime = time
 }
 
-props.player.onDurationChange(({duration}) => {
-    maxTime.value = duration
-})
+props.player.ondurationchange = () => {
+    maxTime.value = props.player.duration
+}
 
-props.player.onTimeChange(({time}) => {
-    if (seekUpdates.value) currentTime.value = time
-})
+props.player.ontimeupdate = () => {
+    if (seekUpdates.value) currentTime.value = props.player.currentTime
+}
 
 props.queue.onChangeTrack(({current}) => {
     currentTrack.value = current

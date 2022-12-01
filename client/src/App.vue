@@ -5,7 +5,7 @@ import MediaSelect from './components/MediaSelect.vue'
 import { SynchronizedObservableMusicQueue } from './MusicQueue/SynchronizedObservableMusicQueue';
 import type { IMusicQueue } from './MusicQueue/Interfaces'
 import io from 'socket.io-client'
-import { AudioPlayer } from './CustomAudioPlayer/AudioPlayer';
+import { SynchronizedAudioPlayer } from './CustomAudioPlayer/AudioPlayer';
 
 const socket = io({
   path: '/api/socket.io' //socketio is kinda wack because our api is behind a proxy but vite also wants websocket access
@@ -22,7 +22,7 @@ const queue = shallowRef() //MusicQueue is observable so we don't need deep reac
 queue.value = new SynchronizedObservableMusicQueue(socket)
 //TODO: custom player is what actually needs to be host-aware
 const player = shallowRef()
-player.value = new AudioPlayer(queue.value)
+player.value = new SynchronizedAudioPlayer(queue.value, socket)
 </script>
 
 <template>
