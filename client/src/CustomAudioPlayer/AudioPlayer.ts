@@ -28,7 +28,7 @@ export class AudioPlayer implements IAudioPlayer {
     private async _changeTrackHandler({current, next}: ChangeTrackEvent) {
         var currentBuf = this._audioCache.get(current.id)
         if (!currentBuf) {
-            const res = await fetch("/api/media/" + current.id + "/file")
+            const res = await fetch("/api/media/tracks/" + current.id + "/file")
             const arrBuf = await res.arrayBuffer()
             currentBuf = await this._audioContext.decodeAudioData(arrBuf)
             this._audioCache.set(current.id, currentBuf)
@@ -40,12 +40,16 @@ export class AudioPlayer implements IAudioPlayer {
         this._bufferAudioSrc.connect(this._gainNode)
         this._bufferAudioSrc.start()
 
-        const res = await fetch("/api/media/" + next.id + "/file")
+        const res = await fetch("/api/media/tracks/" + next.id + "/file")
         const arrBuf = await res.arrayBuffer()
         this._audioCache.set(next.id, await this._audioContext.decodeAudioData(arrBuf))
     }
     
 
+    togglePlay(): void {
+        if (this._paused) this.play()
+        else this.pause()
+    }
     play(): void {
         this._paused = false
         this._bufferAudioSrc.playbackRate.value = 1

@@ -42,6 +42,10 @@ export class SynchronizedObservableMusicQueue extends MusicQueue {
         this._queueUpdateDispatcher.register(handler)
     }
 
+    //If i don't override the getter as well everything goes fuck
+    override get currentTrack(): ITrack {
+        return super.currentTrack
+    }
     override set currentTrack(value: ITrack) {
         super.currentTrack = value
         this._changeTrackDispatcher.fire({current: value, next: this.peek(), nextStack: this._nextStack, previousStack: this._previousStack})

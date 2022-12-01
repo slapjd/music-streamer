@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import type { SynchronizedObservableMusicQueue } from '@/MusicQueue/SynchronizedObservableMusicQueue';
 import type { Ref } from 'vue';
 import { ref, shallowRef } from 'vue';
 import type { IMusicQueue, ITrack } from '../MusicQueue/Interfaces'
-import type { IObservable } from '@/Observable/IObservable';
 
 const props = defineProps<{
-    queue: IMusicQueue & IObservable
+    queue: SynchronizedObservableMusicQueue
 }>()
 const searchText = ref("")
 const searchResults = shallowRef([] as any[])
@@ -27,8 +27,8 @@ async function search(text: string) {
     mode.value = MenuMode.Search
 }
 
-props.queue.subscribe(() => {
-    trackList.value = props.queue.trackList
+props.queue.onQueueUpdate(({queue}) => {
+    trackList.value = queue
 })
 </script>
 
