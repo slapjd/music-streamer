@@ -1,9 +1,15 @@
 import type { IAudioPlayer } from "./IAudioPlayer";
+import type { ChangeTrackEvent, SynchronizedObservableMusicQueue } from "@/MusicQueue/SynchronizedObservableMusicQueue"
 
 export class AudioPlayer implements IAudioPlayer {
     private _audioContext: AudioContext
     private _bufferAudioSrc: AudioBufferSourceNode
     private _gainNode: GainNode
+    private _audioCache: Map<number, AudioBuffer>
+
+    private _paused: boolean
+
+    private _queue: SynchronizedObservableMusicQueue
 
     
     public get volume() : number {
@@ -18,13 +24,35 @@ export class AudioPlayer implements IAudioPlayer {
             gain.value = ((gain.maxValue - gain.minValue) * value) + gain.minValue
         }
     }
+
+    private async _changeTrackHandler({current, next}: ChangeTrackEvent) {
+        var currentBuf = this._audioCache.get(current.id)
+        if (!currentBuf) {
+            const res = await fetch("/api/media/" + current.id + "/file")
+            const arrBuf = await res.arrayBuffer()
+            currentBuf = await this._audioContext.decodeAudioData(arrBuf)
+            this._audioCache.set(current.id, currentBuf)
+        }
+
+        this._bufferAudioSrc.disconnect()
+        this._bufferAudioSrc = this._audioContext.createBufferSource()
+        if (this._paused) this._bufferAudioSrc.playbackRate.value = 0
+        this._bufferAudioSrc.connect(this._gainNode)
+        this._bufferAudioSrc.start()
+
+        const res = await fetch("/api/media/" + next.id + "/file")
+        const arrBuf = await res.arrayBuffer()
+        this._audioCache.set(next.id, await this._audioContext.decodeAudioData(arrBuf))
+    }
     
 
     play(): void {
-        throw new Error("Method not implemented.");
+        this._paused = false
+        this._bufferAudioSrc.playbackRate.value = 1
     }
     pause(): void {
-        throw new Error("Method not implemented.");
+        this._paused = true
+        this._bufferAudioSrc.playbackRate.value = 0
     }
     next(): void {
         throw new Error("Method not implemented.");
@@ -33,17 +61,17 @@ export class AudioPlayer implements IAudioPlayer {
         throw new Error("Method not implemented.");
     }
 
-    constructor() {
+    constructor(queue: SynchronizedObservableMusicQueue) {
         this._audioContext = new AudioContext()
         this._bufferAudioSrc = this._audioContext.createBufferSource()
         this._gainNode = this._audioContext.createGain()
-        this._gainNode.gain.maxValue
+        this._gainNode.connect(this._audioContext.destination)
 
-        fetch("TEST.com")
-        .then(res => res.arrayBuffer())
-        .then(res => this._audioContext.decodeAudioData(res, buf => {
-            this._bufferAudioSrc.buffer = buf
-        }))
+        this._audioCache = new Map()
+        this._paused = true
+        this._queue = queue
+
+        this._queue.onChangeTrack(this._changeTrackHandler.bind(this))
     }
     
 }

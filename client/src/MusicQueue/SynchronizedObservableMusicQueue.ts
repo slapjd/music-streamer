@@ -6,14 +6,14 @@ import type { ITrack } from "./Interfaces";
 import { MusicQueue } from "./MusicQueue";
 import { EventDispatcher, type Handler } from "@/EventHelper/EventHelper"
 
-interface ChangeTrackEvent {
+export interface ChangeTrackEvent {
     current: ITrack
     next: ITrack
     nextStack: ITrack[]
     previousStack: ITrack[]
 }
 
-interface QueueUpdateEvent {
+export interface QueueUpdateEvent {
     queue: ITrack[]
 }
 
