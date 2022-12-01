@@ -18,7 +18,17 @@ const seekUpdates = ref(true)
 const volume = ref(50)
 const currentTrack: Ref<ITrack> = shallowRef(defaultTrack)
 
-function seek(_: any) {}
+function seek(time: number) {
+    props.player.seek(time)
+}
+
+props.player.onDurationChange(({duration}) => {
+    maxTime.value = duration
+})
+
+props.player.onTimeChange(({time}) => {
+    if (seekUpdates.value) currentTime.value = time
+})
 
 props.queue.onChangeTrack(({current}) => {
     currentTrack.value = current
