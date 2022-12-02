@@ -5,6 +5,7 @@ import type { Socket } from "socket.io-client";
 
 export class SynchronizedAudioPlayer {
     private _player: HTMLAudioElement
+    private _nextPlayer: HTMLAudioElement
     private _queue: SynchronizedObservableMusicQueue
     private _socket: Socket
 
@@ -34,6 +35,7 @@ export class SynchronizedAudioPlayer {
     }
     set ondurationchange(v) {
         this._player.ondurationchange = v
+        this._nextPlayer.ondurationchange = v
     }
 
     get ontimeupdate() {
@@ -41,6 +43,7 @@ export class SynchronizedAudioPlayer {
     }
     set ontimeupdate(v) {
         this._player.ontimeupdate = v
+        this._nextPlayer.ontimeupdate = v
     }
 
     private _silentPlay() {
@@ -70,14 +73,50 @@ export class SynchronizedAudioPlayer {
 
     constructor(queue: SynchronizedObservableMusicQueue, socket: Socket) {
         this._player = new Audio()
+        this._nextPlayer = new Audio()
+        this._player.preload = "auto"
+        this._nextPlayer.preload = "auto"
+
         this._queue = queue
         this._socket = socket
 
         this._paused = this._player.paused
 
         this._queue.onChangeTrack(({current, next}) => {
-            this._player.src = "/api/media/tracks/" + current.id + "/file"
-            if (!this._paused) this._player.play()
+            console.log("TRACKCHANGE_NEXT_SRC:", this._nextPlayer.src)
+            if (this._nextPlayer.src.includes("/api/media/tracks/" + current.id + "/file")) {
+                //track already cached, so we use that cached player
+                //Swap players
+                const tempPlayer = this._player
+                this._player = this._nextPlayer
+                this._nextPlayer = tempPlayer
+
+                //Start track if required (already cached)
+                if (!this._paused) this._player.play()
+                this._nextPlayer.pause()
+                console.log("CACHED_TRACKCHANGE")
+            } else {
+                //Track not cached, set src manually
+                //To help keep everyone synchronized, we try to compensate for media loading time
+                const time = Date.now()
+                const oldloaded = this._player.onloadeddata
+                const onmediaload = () => {
+                    const timediff = (Date.now() - time) / 1000
+                    this._player.currentTime = timediff
+                    if (!this._paused) this._player.play()
+                    
+                    this._player.onloadeddata = oldloaded
+                }
+                this._player.onloadeddata = onmediaload
+                this._player.src = "/api/media/tracks/" + current.id + "/file"
+            }
+
+            
+            
+
+            //Cache next track
+            this._nextPlayer.src = "/api/media/tracks/" + next.id + "/file"
+            
         })
 
         this._socket.on("play", () => {
@@ -91,9 +130,11 @@ export class SynchronizedAudioPlayer {
         })
 
         this._socket.on("becomeHost", () => {
-            this._player.onended = () => {
+            const endedev = () => {
                 queue.next()
             }
+            this._player.onended = endedev
+            this._nextPlayer.onended = endedev
         })
     }
 }
