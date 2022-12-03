@@ -21,5 +21,6 @@ server {
         location /_media/ {
                 internal; # This tells nginx it's not accessible from the outside
                 alias ${VIRTUAL_NGINX_FOLDER}/media/;
+                add_header Accept-Ranges bytes;
         }
 }
