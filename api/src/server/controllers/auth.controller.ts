@@ -4,6 +4,11 @@ import { io } from "../../config/express.js"
 import strings from "../../config/strings.js"
 import { User } from "../entities/user.js"
 
+async function status(req: Request, res: Response) {
+    if (req.session?.user) return res.status(200).send({message: strings.SUCCESS})
+    else return res.status(404).send({message: strings.auth.NOT_LOGGED_IN})
+}
+
 async function login(req: Request, res: Response) {
     if (req.session.user) { return res.status(400).send({message: strings.auth.ALREADY_LOGGED_IN}) }
 
@@ -48,4 +53,4 @@ function destroySession(req: Request, res: Response) {
     }
 }
 
-export default { login, logout, destroySession }
+export default { login, logout, destroySession, status }

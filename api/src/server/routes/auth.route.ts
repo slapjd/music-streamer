@@ -5,6 +5,7 @@ import authController from '../controllers/auth.controller.js'
 
 const router: Router = Router()
 
+router.get("/", authController.status)
 router.post("/", validate(paramValidation.auth.login), authController.login)
 router.delete("/", authController.logout)
 
